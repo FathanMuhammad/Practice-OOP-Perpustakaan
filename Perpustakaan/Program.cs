@@ -1,4 +1,4 @@
-﻿namespace Perpustakaan;
+﻿namespace LibraryManagement;
 
 internal class Program
 {
