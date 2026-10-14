@@ -1,4 +1,4 @@
-﻿using LibraryManagement;
+using LibraryManagement;
 
 namespace LibraryManagement
 {
@@ -11,7 +11,7 @@ namespace LibraryManagement
 
         public override string GetItemType()
         {
-            return "Dvd";
+            return "DVD";
         }
 
         public override int GetDailyFine()

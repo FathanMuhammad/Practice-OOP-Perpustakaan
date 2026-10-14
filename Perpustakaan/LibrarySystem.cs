@@ -1,4 +1,4 @@
-﻿using LibraryManagement;
+using LibraryManagement;
 using System;
 
 namespace LibraryManagement;
@@ -134,7 +134,7 @@ internal class LibrarySystem
         }
 
         // Cek aturan jenis item (DVD tidak bisa diperpanjang, Buku maks 2x, Majalah maks 1x)
-        if (item.GetItemType() == "DVD")
+        if (item.GetItemType().Equals("DVD", StringComparison.OrdinalIgnoreCase))
         {
             Console.WriteLine("Ditolak: DVD tidak dapat diperpanjang.");
             return;
@@ -230,9 +230,9 @@ internal class LibrarySystem
         for (int i = 0; i < itemCount; i++)
         {
             string type = items[i].GetItemType();
-            if (type == "Book") countBuku++;
-            else if (type == "Magazine") countMajalah++;
-            else if (type == "DVD") countDVD++;
+            if (type.Equals("Buku", StringComparison.OrdinalIgnoreCase) || type.Equals("Book", StringComparison.OrdinalIgnoreCase)) countBuku++;
+            else if (type.Equals("Majalah", StringComparison.OrdinalIgnoreCase) || type.Equals("Magazine", StringComparison.OrdinalIgnoreCase)) countMajalah++;
+            else if (type.Equals("DVD", StringComparison.OrdinalIgnoreCase)) countDVD++;
 
             if (!items[i].GetIsAvailable())
             {

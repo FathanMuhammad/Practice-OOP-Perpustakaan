@@ -1,4 +1,4 @@
-﻿namespace LibraryManagement
+namespace LibraryManagement
 {
     public abstract class LibraryItem
     {
@@ -55,6 +55,14 @@
         public bool GetIsAvailable() => isAvailable;
         public string GetBorrowedBy() => borrowedBy;
         public int GetRenewalCount() => renewalCount;
+
+        // C# Properties
+        public string Code => code;
+        public string Title => title;
+        public int PublicationYear => publicationYear;
+        public bool IsAvailable => isAvailable;
+        public string BorrowedBy => borrowedBy;
+        public int RenewalCount => renewalCount;
 
         public void SetTitle(string newTitle)
         {
