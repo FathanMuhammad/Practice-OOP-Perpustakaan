@@ -57,7 +57,7 @@ internal class LibrarySystem
     {
         for (int i = 0; i < itemCount; i++)
         {
-            if (items[i].GetCode() == code)
+            if (items[i].Code == code)
             {
                 return items[i];
             }
@@ -97,9 +97,9 @@ internal class LibrarySystem
         }
 
         // Validasi ketersediaan bahan pustaka
-        if (!item.GetIsAvailable())
+        if (!item.IsAvailable)
         {
-            Console.WriteLine("Ditolak: Bahan pustaka sedang dipinjam oleh " + item.GetBorrowedBy() + ".");
+            Console.WriteLine("Ditolak: Bahan pustaka sedang dipinjam oleh " + item.BorrowedBy + ".");
             return;
         }
 
@@ -112,8 +112,8 @@ internal class LibrarySystem
 
         // Proses Peminjaman Berhasil
         item.MarkAsBorrowed(member.Name);
-        member.AddLoan(item.GetCode(), item.Title);
-        Console.WriteLine("Berhasil: " + member.Name + " sukses meminjam [" + item.GetCode() + "] " + item.Title);
+        member.AddLoan(item.Code, item.Title);
+        Console.WriteLine("Berhasil: " + member.Name + " sukses meminjam [" + item.Code + "] " + item.Title);
     }
 
     // 4. Fitur Perpanjang
@@ -127,7 +127,7 @@ internal class LibrarySystem
             return;
         }
 
-        if (item.GetIsAvailable())
+        if (item.IsAvailable)
         {
             Console.WriteLine("Gagal: Bahan pustaka ini sedang tidak dipinjam.");
             return;
@@ -143,7 +143,7 @@ internal class LibrarySystem
         bool success = item.RenewLoan();
         if (success)
         {
-            Console.WriteLine("Berhasil: Perpanjangan ke-" + item.RenewalCount + " untuk [" + item.GetCode() + "] " + item.Title);
+            Console.WriteLine("Berhasil: Perpanjangan ke-" + item.RenewalCount + " untuk [" + item.Code + "] " + item.Title);
         }
         else
         {
@@ -234,7 +234,7 @@ internal class LibrarySystem
             else if (type.Equals("Majalah", StringComparison.OrdinalIgnoreCase) || type.Equals("Magazine", StringComparison.OrdinalIgnoreCase)) countMajalah++;
             else if (type.Equals("DVD", StringComparison.OrdinalIgnoreCase)) countDVD++;
 
-            if (!items[i].GetIsAvailable())
+            if (!items[i].IsAvailable)
             {
                 totalDipinjam++;
             }

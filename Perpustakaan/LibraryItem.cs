@@ -1,29 +1,39 @@
-﻿namespace LibraryManagement
+namespace LibraryManagement
 {
     public abstract class LibraryItem
     {
         // Static Attribute sesuai Class Diagram
         private static int MIN_YEAR = 1900;
 
-        // Private & Protected Attributes (Encapsulation)
-        private readonly string code; // {readOnly} - kode tidak bisa diubah
-        private string title;
-        private int publicationYear;
-        private bool isAvailable = true;
-        private string borrowedBy = "";
-        protected int renewalCount = 0;
+        // C# Properties (Encapsulation - sesuai gaya SeriesB)
+        public string Code { get; }  // {readOnly} - kode tidak bisa diubah, hanya bisa di-set lewat constructor
+        public string Title
+        {
+            get;
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    field = value;
+                }
+            }
+        }
+        public int PublicationYear { get; private set; }
+        public bool IsAvailable { get; private set; } = true;
+        public string BorrowedBy { get; private set; } = "";
+        public int RenewalCount { get; protected set; } = 0;
 
         // Constructor (Protected karena abstract class hanya dipanggil oleh child class)
         protected LibraryItem(string code, string title, int publicationYear)
         {
-            this.code = code;
-            this.title = title;
+            Code = code;
+            Title = title;
 
             // Validasi tahun terbit saat objek dibuat
             if (!SetPublicationYear(publicationYear))
             {
                 // Default fallback jika tahun tidak valid saat inisialisasi
-                this.publicationYear = DateTime.Now.Year;
+                PublicationYear = DateTime.Now.Year;
             }
         }
 
@@ -34,7 +44,7 @@
             return yr >= MIN_YEAR && yr <= currentYear;
         }
 
-        // Setter dengan pesan validasi sesuai kebutuhan sistem
+        // Setter dengan pesan validasi sesuai kebutuhan sistem (return bool untuk feedback)
         public bool SetPublicationYear(int yr)
         {
             int currentYear = DateTime.Now.Year;
@@ -44,48 +54,24 @@
                 return false;
             }
 
-            this.publicationYear = yr;
+            PublicationYear = yr;
             return true;
-        }
-
-        // Getters untuk akses data dari luar class (Encapsulation)
-        public string GetCode() => code;
-        public string GetTitle() => title;
-        public int GetPublicationYear() => publicationYear;
-        public bool GetIsAvailable() => isAvailable;
-        public string GetBorrowedBy() => borrowedBy;
-        public int GetRenewalCount() => renewalCount;
-
-        // C# Properties
-        public string Code => code;
-        public string Title => title;
-        public int PublicationYear => publicationYear;
-        public bool IsAvailable => isAvailable;
-        public string BorrowedBy => borrowedBy;
-        public int RenewalCount => renewalCount;
-
-        public void SetTitle(string newTitle)
-        {
-            if (!string.IsNullOrWhiteSpace(newTitle))
-            {
-                this.title = newTitle;
-            }
         }
 
         // Method untuk menandai bahan pustaka sedang dipinjam
         public void MarkAsBorrowed(string memberName)
         {
-            this.isAvailable = false;
-            this.borrowedBy = memberName;
-            this.renewalCount = 0;
+            IsAvailable = false;
+            BorrowedBy = memberName;
+            RenewalCount = 0;
         }
 
         // Method untuk menandai bahan pustaka telah dikembalikan
         public void MarkAsReturned()
         {
-            this.isAvailable = true;
-            this.borrowedBy = "";
-            this.renewalCount = 0;
+            IsAvailable = true;
+            BorrowedBy = "";
+            RenewalCount = 0;
         }
 
         // Method untuk proses perpanjangan peminjaman
@@ -93,20 +79,20 @@
         {
             // Tidak bisa diperpanjang jika belum dipinjam atau sudah mencapai batas maksimal
             // (Untuk DVD, GetMaxRenewals() bernilai 0, sehingga otomatis return false)
-            if (isAvailable || renewalCount >= GetMaxRenewals())
+            if (IsAvailable || RenewalCount >= GetMaxRenewals())
             {
                 return false;
             }
 
-            renewalCount++;
+            RenewalCount++;
             return true;
         }
 
         // Method untuk mencetak informasi bahan pustaka (Fitur Utama: Daftar bahan pustaka)
         public string GetItemInfo()
         {
-            string statusInfo = isAvailable ? "Tersedia" : $"Dipinjam oleh {borrowedBy}";
-            return $"[{code}] {title} | Jenis: {GetItemType()} | Tahun: {publicationYear} | Status: {statusInfo}";
+            string statusInfo = IsAvailable ? "Tersedia" : $"Dipinjam oleh {BorrowedBy}";
+            return $"[{Code}] {Title} | Jenis: {GetItemType()} | Tahun: {PublicationYear} | Status: {statusInfo}";
         }
 
         // Abstract Methods yang wajib di-override oleh Book, Magazine, dan DVD (Abstraction & Polymorphism)
