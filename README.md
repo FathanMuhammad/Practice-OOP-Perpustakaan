@@ -4,15 +4,8 @@ Proyek latihan Object-Oriented Programming (OOP) berbasis C# / .NET.
 
 ## Struktur Project
 
-```text
-Practice-OOP-Perpustakaan/
-│
-├── Practice-OOP-Perpustakaan.slnx   # Visual Studio Solution File
-├── Perpustakaan/                    # Project Console Application
-│   ├── Perpustakaan.csproj
-│   └── Program.cs
-└── README.md
-```
+## Class Diagram
+![Class Diagram](docs/Class_Diagram.jpg)
 
 ## Cara Menjalankan Project
 
