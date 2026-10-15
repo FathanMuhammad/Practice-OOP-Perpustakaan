@@ -4,22 +4,22 @@ namespace LibraryManagement;
 
 internal class Member
 {
-    // 1. Static Field untuk Akumulasi Denda Harian
+    // Static Field untuk Akumulasi Denda Harian
     private static double totalFineToday = 0;
 
-    // 2. C# Properties (Encapsulation gaya SeriesB)
+    // C# Properties (Encapsulation gaya SeriesB)
     public string MemberId { get; private set; }
     public string Name { get; set; }
     public bool IsPremium { get; private set; }
 
-    // 3. Array Murni & Counter
+    // Array Murni & Counter
     private string[] activeLoanCodes;
     private int activeLoanCount;
 
     private string[] loanHistory;
     private int historyCount;
 
-    // 4. Constructor
+    // Constructor
     public Member(string memberId, string name, bool isPremium)
     {
         MemberId = memberId;
@@ -32,7 +32,7 @@ internal class Member
         historyCount = 0;
     }
 
-    // 5. Static Methods
+    // Static Methods
     public static double GetTotalFineToday() => totalFineToday;
 
     public static void AddFineToday(double amount)
@@ -40,7 +40,7 @@ internal class Member
         if (amount > 0) totalFineToday += amount;
     }
 
-    // 6. Aturan & Batasan Keanggotaan
+    // Aturan & Batasan Keanggotaan
     public string GetMemberType() => IsPremium ? "Premium" : "Reguler";
 
     public int GetMaxLoanLimit() => IsPremium ? 4 : 2;
@@ -49,7 +49,7 @@ internal class Member
 
     public int GetActiveLoanCount() => activeLoanCount;
 
-    // 7. Cek Apakah Item Sedang Dipinjam
+    // Cek Apakah Item Sedang Dipinjam
     public bool HasBorrowedItem(string code)
     {
         for (int i = 0; i < activeLoanCount; i++)
@@ -59,7 +59,7 @@ internal class Member
         return false;
     }
 
-    // 8. Tambah Pinjaman Baru
+    // Tambah Pinjaman Baru
     public bool AddLoan(string code, string title)
     {
         if (!CanBorrow() || HasBorrowedItem(code)) return false;
@@ -76,7 +76,7 @@ internal class Member
         return true;
     }
 
-    // 9. Kembalikan / Hapus Pinjaman (Array Shifting)
+    // Kembalikan / Hapus Pinjaman (Array Shifting)
     public bool RemoveLoan(string code)
     {
         int foundIndex = -1;
@@ -101,7 +101,7 @@ internal class Member
         return true;
     }
 
-    // 10. Perhitungan Denda & Diskon 50% untuk Premium
+    // Perhitungan Denda & Diskon 50% untuk Premium
     public double CalculateFinalFine(int lateDays, int dailyFine, out double discount)
     {
         discount = 0;
@@ -116,7 +116,7 @@ internal class Member
         return finalFine;
     }
 
-    // 11. Informasi & Riwayat
+    // Informasi & Riwayat
     public string GetMemberInfo() =>
         $"Nomor: {MemberId} | Nama: {Name} | Jenis: {GetMemberType()} | Pinjaman Aktif: {activeLoanCount}/{GetMaxLoanLimit()}";
 
