@@ -14,7 +14,7 @@ internal static class LoanFeature
     {
         Console.WriteLine("\n--- PEMINJAMAN BAHAN PUSTAKA ---");
         string memberId = Validation.ReadNonEmptyString("Masukkan Nomor Anggota (contoh: 1): ");
-        string itemCode = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka (contoh: 1, B001): ");
+        string itemCode = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka (contoh: 1): ");
         int loanDays = Validation.ReadPositiveInt("Masukkan masa pinjam (hari): ");
 
         system.BorrowItem(memberId, itemCode, loanDays);

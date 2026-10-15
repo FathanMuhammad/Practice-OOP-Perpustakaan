@@ -99,8 +99,8 @@ internal class LibraryApp
             system.AddItem(new Dvd("3", "Tutorial Desain Sistem OOP", 2022));
 
             // Anggota Awal (Bagian B)
-            system.AddMember(new Member("1", "Andi Reguler", false));
-            system.AddMember(new Member("2", "Siti Premium", true));
+            system.AddMember(new Member("1", "Irza (Reguler)", false));
+            system.AddMember(new Member("2", "Fathan (Premium)", true));
         }
         catch (Exception ex)
         {
