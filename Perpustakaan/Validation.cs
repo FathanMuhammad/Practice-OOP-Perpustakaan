@@ -60,6 +60,23 @@ internal static class Validation
         }
     }
 
+    // Membaca bilangan bulat positif (contoh: masa pinjam, hari perpanjangan > 0)
+    public static int ReadPositiveInt(string prompt)
+    {
+        while (true)
+        {
+            Console.Write(prompt);
+            string? input = Console.ReadLine();
+
+            if (int.TryParse(input, out int result) && result > 0)
+            {
+                return result;
+            }
+
+            Console.WriteLine("[Error] Mohon masukkan angka bilangan bulat positif (> 0).");
+        }
+    }
+
     // Membaca tahun terbit dan memvalidasi batas tahun (1900 s/d tahun berjalan)
     public static int ReadPublicationYear(string prompt)
     {

@@ -53,7 +53,7 @@ internal class LibrarySystem
     }
 
     // Helper: Mencari Item berdasarkan Kode
-    public LibraryItem FindItem(string code)
+    public LibraryItem? FindItem(string code)
     {
         for (int i = 0; i < itemCount; i++)
         {
@@ -66,7 +66,7 @@ internal class LibrarySystem
     }
 
     // Helper: Mencari Member berdasarkan ID
-    public Member FindMember(string memberId)
+    public Member? FindMember(string memberId)
     {
         for (int i = 0; i < memberCount; i++)
         {
@@ -79,10 +79,10 @@ internal class LibrarySystem
     }
 
     // 3. Fitur Pinjam
-    public void BorrowItem(string memberId, string itemCode)
+    public void BorrowItem(string memberId, string itemCode, int loanDays)
     {
-        Member member = FindMember(memberId);
-        LibraryItem item = FindItem(itemCode);
+        Member? member = FindMember(memberId);
+        LibraryItem? item = FindItem(itemCode);
 
         if (member == null)
         {
@@ -111,15 +111,15 @@ internal class LibrarySystem
         }
 
         // Proses Peminjaman Berhasil
-        item.MarkAsBorrowed(member.Name);
+        item.MarkAsBorrowed(member.Name, loanDays);
         member.AddLoan(item.Code, item.Title);
-        Console.WriteLine("Berhasil: " + member.Name + " sukses meminjam [" + item.Code + "] " + item.Title);
+        Console.WriteLine("Berhasil: " + member.Name + " sukses meminjam [" + item.Code + "] " + item.Title + " selama " + loanDays + " hari.");
     }
 
     // 4. Fitur Perpanjang
-    public void RenewItem(string itemCode)
+    public void RenewItem(string itemCode, int extraDays)
     {
-        LibraryItem item = FindItem(itemCode);
+        LibraryItem? item = FindItem(itemCode);
 
         if (item == null)
         {
@@ -140,10 +140,11 @@ internal class LibrarySystem
             return;
         }
 
-        bool success = item.RenewLoan();
+        bool success = item.RenewLoan(extraDays);
         if (success)
         {
             Console.WriteLine("Berhasil: Perpanjangan ke-" + item.RenewalCount + " untuk [" + item.Code + "] " + item.Title);
+            Console.WriteLine("Total masa pinjam sekarang: " + item.TotalAllowedDays + " hari.");
         }
         else
         {
@@ -152,10 +153,10 @@ internal class LibrarySystem
     }
 
     // 5. Fitur Kembalikan & Perhitungan Denda
-    public void ReturnItem(string memberId, string itemCode, int lateDays)
+    public void ReturnItem(string memberId, string itemCode, int returnDay)
     {
-        Member member = FindMember(memberId);
-        LibraryItem item = FindItem(itemCode);
+        Member? member = FindMember(memberId);
+        LibraryItem? item = FindItem(itemCode);
 
         if (member == null || item == null)
         {
@@ -170,6 +171,10 @@ internal class LibrarySystem
             return;
         }
 
+        // Hitung keterlambatan otomatis berdasarkan masa pinjam
+        int totalAllowed = item.TotalAllowedDays;
+        int lateDays = returnDay > totalAllowed ? returnDay - totalAllowed : 0;
+
         // Hitung denda berdasarkan jenis item (Buku: 1000, Majalah: 500, DVD: 3000)
         int dailyFine = item.GetDailyFine();
         double finalFine = member.CalculateFinalFine(lateDays, dailyFine, out double discount);
@@ -180,12 +185,14 @@ internal class LibrarySystem
 
         // Cetak Rincian Pengembalian
         Console.WriteLine("\n--- RINCIAN PENGEMBALIAN ---");
-        Console.WriteLine("Judul Item    : " + item.Title);
-        Console.WriteLine("Peminjam      : " + member.Name + " (" + member.GetMemberType() + ")");
-        Console.WriteLine("Hari Terlambat: " + lateDays + " hari");
-        Console.WriteLine("Denda Dasar   : Rp " + (lateDays * dailyFine));
-        Console.WriteLine("Potongan Premi: Rp " + discount);
-        Console.WriteLine("Total Bayar   : Rp " + finalFine);
+        Console.WriteLine("Judul Item       : " + item.Title);
+        Console.WriteLine("Peminjam         : " + member.Name + " (" + member.GetMemberType() + ")");
+        Console.WriteLine("Masa Pinjam      : " + totalAllowed + " hari");
+        Console.WriteLine("Dikembalikan Hari: ke-" + returnDay);
+        Console.WriteLine("Hari Terlambat   : " + lateDays + " hari");
+        Console.WriteLine("Denda Dasar      : Rp " + (lateDays * dailyFine));
+        Console.WriteLine("Potongan Premi   : Rp " + discount);
+        Console.WriteLine("Total Bayar      : Rp " + finalFine);
         Console.WriteLine("----------------------------");
     }
 

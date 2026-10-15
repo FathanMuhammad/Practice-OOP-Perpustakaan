@@ -13,10 +13,11 @@ internal static class LoanFeature
     public static void ProcessBorrow(LibrarySystem system)
     {
         Console.WriteLine("\n--- PEMINJAMAN BAHAN PUSTAKA ---");
-        string idPinjam = Validation.ReadNonEmptyString("Masukkan Nomor Anggota (contoh: 1, M01): ");
+        string idPinjam = Validation.ReadNonEmptyString("Masukkan Nomor Anggota (contoh: 1): ");
         string kodePinjam = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka (contoh: 1, B001): ");
+        int loanDays = Validation.ReadPositiveInt("Masukkan masa pinjam (hari): ");
 
-        system.BorrowItem(idPinjam, kodePinjam);
+        system.BorrowItem(idPinjam, kodePinjam, loanDays);
     }
 
     // Case 4: Perpanjang Peminjaman
@@ -24,8 +25,9 @@ internal static class LoanFeature
     {
         Console.WriteLine("\n--- PERPANJANG PEMINJAMAN ---");
         string kodePerpanjang = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka yang akan diperpanjang: ");
+        int extraDays = Validation.ReadPositiveInt("Perpanjang berapa hari?: ");
 
-        system.RenewItem(kodePerpanjang);
+        system.RenewItem(kodePerpanjang, extraDays);
     }
 
     // Case 5: Kembalikan Bahan Pustaka
@@ -34,9 +36,9 @@ internal static class LoanFeature
         Console.WriteLine("\n--- PENGEMBALIAN BAHAN PUSTAKA ---");
         string idKembali = Validation.ReadNonEmptyString("Masukkan Nomor Anggota: ");
         string kodeKembali = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka: ");
-        int hariTelat = Validation.ReadNonNegativeInt("Masukkan jumlah hari keterlambatan: ");
+        int returnDay = Validation.ReadPositiveInt("Dikembalikan pada hari ke berapa?: ");
 
-        system.ReturnItem(idKembali, kodeKembali, hariTelat);
+        system.ReturnItem(idKembali, kodeKembali, returnDay);
     }
 
     // Case 7: Tampilkan Riwayat Peminjaman Anggota
@@ -45,7 +47,7 @@ internal static class LoanFeature
         Console.WriteLine("\n--- RIWAYAT PEMINJAMAN ANGGOTA ---");
         string idRiwayat = Validation.ReadNonEmptyString("Masukkan Nomor Anggota yang ingin dilihat riwayatnya: ");
 
-        Member member = system.FindMember(idRiwayat);
+        Member? member = system.FindMember(idRiwayat);
         if (member != null)
         {
             member.ShowLoanHistory();
