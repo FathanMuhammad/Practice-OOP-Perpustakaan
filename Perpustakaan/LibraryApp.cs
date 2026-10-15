@@ -28,10 +28,10 @@ internal class LibraryApp
         {
             DisplayMenu();
 
-            int pilihan = Validation.ReadIntInRange("Pilih menu (0-8): ", 0, 8);
+            int choice = Validation.ReadIntInRange("Pilih menu (0-8): ", 0, 8);
             Console.WriteLine();
 
-            switch (pilihan)
+            switch (choice)
             {
                 case 1:
                     Report.ShowAllItems(system);

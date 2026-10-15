@@ -231,27 +231,27 @@ internal class LibrarySystem
     // 8. Laporan Hari Ini
     public void PrintDailyReport()
     {
-        int countBuku = 0, countMajalah = 0, countDVD = 0;
-        int totalDipinjam = 0;
+        int bookCount = 0, magazineCount = 0, dvdCount = 0;
+        int totalBorrowed = 0;
 
         for (int i = 0; i < itemCount; i++)
         {
             string type = items[i].GetItemType();
-            if (type.Equals("Buku", StringComparison.OrdinalIgnoreCase) || type.Equals("Book", StringComparison.OrdinalIgnoreCase)) countBuku++;
-            else if (type.Equals("Majalah", StringComparison.OrdinalIgnoreCase) || type.Equals("Magazine", StringComparison.OrdinalIgnoreCase)) countMajalah++;
-            else if (type.Equals("DVD", StringComparison.OrdinalIgnoreCase)) countDVD++;
+            if (type.Equals("Buku", StringComparison.OrdinalIgnoreCase) || type.Equals("Book", StringComparison.OrdinalIgnoreCase)) bookCount++;
+            else if (type.Equals("Majalah", StringComparison.OrdinalIgnoreCase) || type.Equals("Magazine", StringComparison.OrdinalIgnoreCase)) magazineCount++;
+            else if (type.Equals("DVD", StringComparison.OrdinalIgnoreCase)) dvdCount++;
 
             if (!items[i].IsAvailable)
             {
-                totalDipinjam++;
+                totalBorrowed++;
             }
         }
 
         Console.WriteLine("\n=== LAPORAN HARIAN PERPUSTAKAAN ===");
-        Console.WriteLine("Jumlah Buku   : " + countBuku);
-        Console.WriteLine("Jumlah Majalah: " + countMajalah);
-        Console.WriteLine("Jumlah DVD    : " + countDVD);
-        Console.WriteLine("Total Dipinjam: " + totalDipinjam);
+        Console.WriteLine("Jumlah Buku   : " + bookCount);
+        Console.WriteLine("Jumlah Majalah: " + magazineCount);
+        Console.WriteLine("Jumlah DVD    : " + dvdCount);
+        Console.WriteLine("Total Dipinjam: " + totalBorrowed);
         Console.WriteLine("Total Denda Hari Ini: Rp " + Member.GetTotalFineToday());
         Console.WriteLine("===================================");
     }

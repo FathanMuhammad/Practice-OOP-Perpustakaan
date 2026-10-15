@@ -17,26 +17,26 @@ internal static class ItemFeature
         Console.WriteLine("2. Majalah (Denda Rp 500/hari, Maks. Perpanjang 1x)");
         Console.WriteLine("3. DVD (Denda Rp 3.000/hari, Tidak Bisa Diperpanjang)");
 
-        int jenisPilihan = Validation.ReadIntInRange("Pilihan (1-3): ", 1, 3);
+        int itemChoice = Validation.ReadIntInRange("Pilihan (1-3): ", 1, 3);
 
-        string kodeBaru = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka (unik): ");
+        string newCode = Validation.ReadNonEmptyString("Masukkan Kode Bahan Pustaka (unik): ");
 
         // Cek duplikasi kode item sebelum membuat objek
-        if (system.FindItem(kodeBaru) != null)
+        if (system.FindItem(newCode) != null)
         {
-            Console.WriteLine($"\n[Gagal] Kode bahan pustaka '{kodeBaru}' sudah terdaftar dalam sistem.");
+            Console.WriteLine($"\n[Gagal] Kode bahan pustaka '{newCode}' sudah terdaftar dalam sistem.");
             return;
         }
 
-        string judulBaru = Validation.ReadNonEmptyString("Masukkan Judul: ");
-        int tahunBaru = Validation.ReadPublicationYear($"Masukkan Tahun Terbit (1900-{DateTime.Now.Year}): ");
+        string newTitle = Validation.ReadNonEmptyString("Masukkan Judul: ");
+        int newYear = Validation.ReadPublicationYear($"Masukkan Tahun Terbit (1900-{DateTime.Now.Year}): ");
 
         // POLYMORPHISM: Membuat instance child class sesuai pilihan, ditampung sebagai LibraryItem
-        LibraryItem? newItem = jenisPilihan switch
+        LibraryItem? newItem = itemChoice switch
         {
-            1 => new Book(kodeBaru, judulBaru, tahunBaru),
-            2 => new Magazine(kodeBaru, judulBaru, tahunBaru),
-            3 => new Dvd(kodeBaru, judulBaru, tahunBaru),
+            1 => new Book(newCode, newTitle, newYear),
+            2 => new Magazine(newCode, newTitle, newYear),
+            3 => new Dvd(newCode, newTitle, newYear),
             _ => null
         };
 
