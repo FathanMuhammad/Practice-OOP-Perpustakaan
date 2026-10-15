@@ -29,14 +29,20 @@ internal static class ItemFeature
         }
 
         string newTitle = Validation.ReadNonEmptyString("Masukkan Judul: ");
-        int newYear = Validation.ReadPublicationYear($"Masukkan Tahun Terbit (1900-{DateTime.Now.Year}): ");
+        int? newYear = Validation.ReadPublicationYear($"Masukkan Tahun Terbit (1900-{DateTime.Now.Year}): ");
+
+        if (!newYear.HasValue)
+        {
+            Console.WriteLine("[Batal] Proses penambahan bahan pustaka dibatalkan.");
+            return;
+        }
 
         // POLYMORPHISM: Membuat instance child class sesuai pilihan, ditampung sebagai LibraryItem
         LibraryItem? newItem = itemChoice switch
         {
-            1 => new Book(newCode, newTitle, newYear),
-            2 => new Magazine(newCode, newTitle, newYear),
-            3 => new Dvd(newCode, newTitle, newYear),
+            1 => new Book(newCode, newTitle, newYear.Value),
+            2 => new Magazine(newCode, newTitle, newYear.Value),
+            3 => new Dvd(newCode, newTitle, newYear.Value),
             _ => null
         };
 

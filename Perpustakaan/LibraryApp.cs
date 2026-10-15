@@ -26,10 +26,11 @@ internal class LibraryApp
 
         while (isRunning)
         {
+            SafeClear();
             DisplayMenu();
 
             int choice = Validation.ReadIntInRange("Pilih menu (0-8): ", 0, 8);
-            Console.WriteLine();
+            SafeClear();
 
             switch (choice)
             {
@@ -70,6 +71,25 @@ internal class LibraryApp
                     Console.WriteLine("Terima kasih telah menggunakan Sistem Perpustakaan.");
                     break;
             }
+
+            if (choice != 0)
+            {
+                Console.WriteLine("\nTekan tombol apapun untuk kembali ke menu utama...");
+                Console.ReadKey();
+            }
+        }
+    }
+
+    // Helper aman untuk membersihkan layar console tanpa crash jika output di-redirect
+    private static void SafeClear()
+    {
+        try
+        {
+            Console.Clear();
+        }
+        catch
+        {
+            // Abaikan jika terminal tidak mendukung clear buffer
         }
     }
 

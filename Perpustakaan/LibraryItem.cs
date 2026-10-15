@@ -1,6 +1,6 @@
 namespace LibraryManagement
 {
-    public abstract class LibraryItem
+    public abstract class LibraryItem : ILoanable
     {
         // Static Attribute sesuai Class Diagram
         private static int MIN_YEAR = 1900;

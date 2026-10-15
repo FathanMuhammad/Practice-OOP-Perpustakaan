@@ -77,8 +77,8 @@ internal static class Validation
         }
     }
 
-    // Membaca tahun terbit dan memvalidasi batas tahun (1900 s/d tahun berjalan)
-    public static int ReadPublicationYear(string prompt)
+    // Membaca tahun terbit: jika < 1900 maka proses langsung dibatalkan (return null)
+    public static int? ReadPublicationYear(string prompt)
     {
         int currentYear = DateTime.Now.Year;
         while (true)
@@ -86,12 +86,24 @@ internal static class Validation
             Console.Write(prompt);
             string? input = Console.ReadLine();
 
-            if (int.TryParse(input, out int year) && LibraryItem.IsValidYear(year))
+            if (int.TryParse(input, out int year))
             {
+                if (year < 1900)
+                {
+                    Console.WriteLine($"\n[Ditolak] Tahun terbit ({year}) berada di bawah tahun 1900. Bahan pustaka tidak dapat ditambahkan ke sistem.");
+                    return null;
+                }
+
+                if (year > currentYear)
+                {
+                    Console.WriteLine($"[Error] Tahun terbit tidak boleh melebihi tahun sekarang ({currentYear}).");
+                    continue;
+                }
+
                 return year;
             }
 
-            Console.WriteLine($"[Error] Tahun terbit harus berupa angka antara 1900 sampai {currentYear}.");
+            Console.WriteLine("[Error] Tahun terbit harus berupa angka bilangan bulat.");
         }
     }
 }
