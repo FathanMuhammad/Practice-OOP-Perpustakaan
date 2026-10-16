@@ -21,6 +21,12 @@ public abstract class LibraryItem
     public Member? Borrower { get; private set; }    // Referensi ke Member yang meminjam (private set)
     protected int renewalCount;                      // Jumlah perpanjangan yang sudah dilakukan (protected)
 
+    // Queue (Collection FIFO): Antrian anggota yang ingin meminjam saat item sedang dipinjam
+    private Queue<Member> _waitingQueue = new Queue<Member>();
+
+    // Property: Jumlah anggota yang sedang mengantri
+    public int WaitingCount => _waitingQueue.Count;
+
     // Constructor (Protected karena abstract class hanya dipanggil oleh child class)
     protected LibraryItem(string code, string title, int publishYear)
     {
@@ -30,16 +36,14 @@ public abstract class LibraryItem
         Borrower = null;
         renewalCount = 0;
 
-        // Validasi tahun terbit saat objek dibuat
-        if (IsValidYear(publishYear))
+        // Validasi tahun terbit: throw exception jika di luar batas (menggantikan pesan validasi)
+        if (!IsValidYear(publishYear))
         {
-            PublishYear = publishYear;
+            throw new ArgumentOutOfRangeException(nameof(publishYear),
+                $"Tahun terbit ({publishYear}) tidak valid! Harus antara {MIN_YEAR} sampai {DateTime.Now.Year}.");
         }
-        else
-        {
-            Console.WriteLine($"[Validasi Gagal] Tahun terbit ({publishYear}) tidak valid! Harus antara {MIN_YEAR} sampai {DateTime.Now.Year}.");
-            PublishYear = DateTime.Now.Year; // Default fallback
-        }
+
+        PublishYear = publishYear;
 
         // Increment total item yang pernah dibuat
         TotalCreated++;
@@ -75,12 +79,13 @@ public abstract class LibraryItem
     }
 
     // Method: Proses peminjaman bahan pustaka
+    // Melempar ItemNotAvailableException jika item sedang dipinjam (throw)
     public bool Borrow(Member member)
     {
         if (Status != "Tersedia")
         {
-            Console.WriteLine($"[Gagal] Bahan pustaka [{Code}] sedang dipinjam oleh {Borrower?.Name}.");
-            return false;
+            throw new ItemNotAvailableException(Code,
+                $"Bahan pustaka [{Code}] {Title} sedang dipinjam oleh {Borrower?.Name}.");
         }
 
         Status = "Dipinjam";
@@ -90,13 +95,32 @@ public abstract class LibraryItem
         return true;
     }
 
+    // Method: Menambahkan anggota ke antrian pemesanan (Queue)
+    public void Enqueue(Member member)
+    {
+        _waitingQueue.Enqueue(member);
+        Console.WriteLine($"[Antrian] {member.Name} masuk antrian untuk [{Code}] {Title}. Posisi antrian: {_waitingQueue.Count}");
+    }
+
     // Method: Proses pengembalian bahan pustaka
-    public void Return()
+    // Jika ada anggota di antrian (Queue), otomatis pinjamkan ke anggota terdepan (Dequeue)
+    public Member? Return()
     {
         Console.WriteLine($"[Info] Bahan pustaka [{Code}] {Title} telah dikembalikan.");
         Status = "Tersedia";
         Borrower = null;
         renewalCount = 0;
+
+        // Cek antrian: jika ada anggota yang menunggu, otomatis pinjamkan
+        if (_waitingQueue.Count > 0)
+        {
+            Member nextMember = _waitingQueue.Dequeue();
+            Console.WriteLine($"[Antrian] {nextMember.Name} (antrian terdepan) otomatis mendapatkan [{Code}] {Title}.");
+            Borrow(nextMember);
+            return nextMember; // Kembalikan member yang otomatis mendapat item
+        }
+
+        return null; // Tidak ada yang mengantri
     }
 
     // Virtual Method: Cetak informasi bahan pustaka (bisa di-override oleh child class)
@@ -105,6 +129,11 @@ public abstract class LibraryItem
         string statusInfo = Status == "Tersedia"
             ? "Tersedia"
             : $"Dipinjam oleh {Borrower?.Name}";
-        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Tahun: {PublishYear} | Status: {statusInfo}");
+
+        string queueInfo = _waitingQueue.Count > 0
+            ? $" | Antrian: {_waitingQueue.Count} orang"
+            : "";
+
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
     }
 }
