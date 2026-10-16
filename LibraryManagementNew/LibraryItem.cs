@@ -130,10 +130,17 @@ public abstract class LibraryItem
             ? "Tersedia"
             : $"Dipinjam oleh {Borrower?.Name}";
 
+        string detailInfo = this switch
+        {
+            Book b => $" | Pengarang: {b.Author}",
+            Magazine m => $" | Edisi: {m.Edition}",
+            _ => ""
+        };
+
         string queueInfo = _waitingQueue.Count > 0
             ? $" | Antrian: {_waitingQueue.Count} orang"
             : "";
 
-        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | GetType()| Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name}{detailInfo} | Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
     }
 }

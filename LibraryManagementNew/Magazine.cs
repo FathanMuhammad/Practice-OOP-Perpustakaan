@@ -41,17 +41,4 @@ public class Magazine : LibraryItem, IRenewable
         return true;
     }
 
-    // Override Virtual: Info() menampilkan informasi Majalah termasuk Edisi (Edition)
-    public override void Info()
-    {
-        string statusInfo = Status == "Tersedia"
-            ? "Tersedia"
-            : $"Dipinjam oleh {Borrower?.Name}";
-
-        string queueInfo = WaitingCount > 0
-            ? $" | Antrian: {WaitingCount} orang"
-            : "";
-
-        Console.WriteLine($"[{Code}] {Title} | Magazine | Edisi: {Edition} | Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
-    }
 }
