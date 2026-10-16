@@ -40,4 +40,13 @@ public class Magazine : LibraryItem, IRenewable
         Console.WriteLine($"[Berhasil] Perpanjangan ke-{renewalCount} untuk Majalah [{Code}] {Title}.");
         return true;
     }
+
+    // Override Virtual: Info() menampilkan informasi tambahan edisi (Edition)
+    public override void Info()
+    {
+        string statusInfo = Status == "Tersedia"
+            ? "Tersedia"
+            : $"Dipinjam oleh {Borrower?.Name}";
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Edisi: {Edition} | Tahun: {PublishYear} | Status: {statusInfo}");
+    }
 }

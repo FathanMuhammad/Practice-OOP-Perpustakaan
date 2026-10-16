@@ -7,7 +7,11 @@ internal class Program
 
     static void Main(string[] args)
     {
+        SafeClear();
         SeedInitialData();
+        Console.WriteLine("\nTekan Enter untuk melanjutkan ke menu utama...");
+        Console.ReadLine();
+        SafeClear();
 
         while (isRunning)
         {
@@ -15,6 +19,28 @@ internal class Program
             int choice = ReadIntInRange("Pilih menu (0-8): ", 0, 8);
             Console.WriteLine();
             HandleMenu(choice);
+
+            if (isRunning)
+            {
+                Console.WriteLine("\nTekan Enter untuk kembali ke menu utama...");
+                Console.ReadLine();
+                SafeClear();
+            }
+        }
+    }
+
+    static void SafeClear()
+    {
+        try
+        {
+            if (!Console.IsOutputRedirected)
+            {
+                Console.Clear();
+            }
+        }
+        catch (IOException)
+        {
+            // Abaikan jika konsol dalam mode redirected / subshell
         }
     }
 
@@ -91,24 +117,25 @@ internal class Program
         string itemCode = ReadNonEmptyString("Masukkan Kode Bahan Pustaka: ");
         try
         {
-            bool success = perpustakaan.Borrow(member, itemCode);
-            if (!success)
+            perpustakaan.Borrow(member, itemCode);
+        }
+        catch (ItemNotAvailableException ex)
+        {
+            Console.WriteLine($"[Ditolak] {ex.Message}");
+            Console.Write("Apakah Anda ingin masuk ke antrean peminjaman untuk bahan pustaka ini? (y/n): ");
+            string? ans = Console.ReadLine();
+            if (ans?.Trim().Equals("y", StringComparison.OrdinalIgnoreCase) == true)
             {
-                var item = perpustakaan.FindItem(itemCode);
-                if (item != null && item.Status != "Tersedia")
-                {
-                    Console.Write("Apakah Anda ingin masuk ke antrean peminjaman untuk bahan pustaka ini? (y/n): ");
-                    string? ans = Console.ReadLine();
-                    if (ans?.Trim().Equals("y", StringComparison.OrdinalIgnoreCase) == true)
-                    {
-                        perpustakaan.EnqueueBorrower(member, itemCode);
-                    }
-                }
+                perpustakaan.EnqueueBorrower(member, itemCode);
             }
         }
         catch (BorrowLimitExceededException ex)
         {
             Console.WriteLine($"[Ditolak] {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Gagal] {ex.Message}");
         }
     }
 
@@ -186,37 +213,55 @@ internal class Program
         int jenis = ReadIntInRange("Pilihan (1-3): ", 1, 3);
         string code = ReadNonEmptyString("Masukkan Kode: ");
         string title = ReadNonEmptyString("Masukkan Judul: ");
-        int year = ReadPublicationYear($"Masukkan Tahun Terbit (1900-{DateTime.Now.Year}): ");
+
+        Console.Write($"Masukkan Tahun Terbit (1900-{DateTime.Now.Year}): ");
+        string? inputYear = Console.ReadLine();
+        if (!int.TryParse(inputYear, out int year))
+        {
+            Console.WriteLine("[Ditolak] Input tahun harus berupa angka bulat. Pemasukan bahan pustaka dibatalkan.");
+            return;
+        }
 
         LibraryItem? newItem = null;
+        try
+        {
+            // Validasi tahun menggunakan ArgumentOutOfRangeException sesuai ketentuan SeriesC
+            if (!LibraryItem.IsValidYear(year))
+            {
+                throw new ArgumentOutOfRangeException(nameof(year),
+                    $"Tahun terbit ({year}) tidak valid! Harus antara 1900 sampai {DateTime.Now.Year}.");
+            }
 
-        if (jenis == 1)
-        {
-            string author = ReadNonEmptyString("Masukkan Nama Pengarang: ");
-            newItem = new Book(code, title, year, author);
-        }
-        else if (jenis == 2)
-        {
-            string edition = ReadNonEmptyString("Masukkan Edisi: ");
-            newItem = new Magazine(code, title, year, edition);
-        }
-        else if (jenis == 3)
-        {
-            int duration = ReadPositiveInt("Masukkan Durasi (menit): ");
-            newItem = new Dvd(code, title, year, duration);
-        }
+            if (jenis == 1)
+            {
+                string author = ReadNonEmptyString("Masukkan Nama Pengarang: ");
+                newItem = new Book(code, title, year, author);
+            }
+            else if (jenis == 2)
+            {
+                string edition = ReadNonEmptyString("Masukkan Edisi: ");
+                newItem = new Magazine(code, title, year, edition);
+            }
+            else if (jenis == 3)
+            {
+                int duration = ReadPositiveInt("Masukkan Durasi (menit): ");
+                newItem = new Dvd(code, title, year, duration);
+            }
 
-        if (newItem != null)
-        {
-            try
+            if (newItem != null)
             {
                 perpustakaan.AddItem(newItem);
                 Console.WriteLine($"[Berhasil] Bahan pustaka [{code}] {title} berhasil ditambahkan.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Gagal] {ex.Message}");
-            }
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            Console.WriteLine($"[Ditolak] {ex.Message}");
+            Console.WriteLine("Pemasukan bahan pustaka dibatalkan.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Gagal] {ex.Message}");
         }
     }
 
@@ -293,18 +338,6 @@ internal class Program
             if (int.TryParse(input, out int result) && result > 0)
                 return result;
             Console.WriteLine("[Error] Masukkan angka positif (> 0).");
-        }
-    }
-
-    static int ReadPublicationYear(string prompt)
-    {
-        while (true)
-        {
-            Console.Write(prompt);
-            string? input = Console.ReadLine();
-            if (int.TryParse(input, out int year) && LibraryItem.IsValidYear(year))
-                return year;
-            Console.WriteLine($"[Error] Tahun terbit harus antara 1900 sampai {DateTime.Now.Year}.");
         }
     }
 }

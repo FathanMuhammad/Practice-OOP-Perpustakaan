@@ -24,7 +24,8 @@ public abstract class LibraryItem
     // Queue (Collection FIFO): Antrian anggota yang ingin meminjam saat item sedang dipinjam
     private Queue<Member> _waitingQueue = new Queue<Member>();
 
-    // Property: Jumlah anggota yang sedang mengantri
+    // Property: Antrian dan jumlah anggota yang sedang mengantri
+    public Queue<Member> WaitingQueue => _waitingQueue;
     public int WaitingCount => _waitingQueue.Count;
 
     // Constructor (Protected karena abstract class hanya dipanggil oleh child class)
@@ -103,24 +104,12 @@ public abstract class LibraryItem
     }
 
     // Method: Proses pengembalian bahan pustaka
-    // Jika ada anggota di antrian (Queue), otomatis pinjamkan ke anggota terdepan (Dequeue)
-    public Member? Return()
+    public void Return()
     {
         Console.WriteLine($"[Info] Bahan pustaka [{Code}] {Title} telah dikembalikan.");
         Status = "Tersedia";
         Borrower = null;
         renewalCount = 0;
-
-        // Cek antrian: jika ada anggota yang menunggu, otomatis pinjamkan
-        if (_waitingQueue.Count > 0)
-        {
-            Member nextMember = _waitingQueue.Dequeue();
-            Console.WriteLine($"[Antrian] {nextMember.Name} (antrian terdepan) otomatis mendapatkan [{Code}] {Title}.");
-            Borrow(nextMember);
-            return nextMember; // Kembalikan member yang otomatis mendapat item
-        }
-
-        return null; // Tidak ada yang mengantri
     }
 
     // Virtual Method: Cetak informasi bahan pustaka (bisa di-override oleh child class)

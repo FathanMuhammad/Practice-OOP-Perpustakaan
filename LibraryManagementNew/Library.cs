@@ -17,9 +17,6 @@ public class Library
     // Pencarian cepat anggota via Dictionary
     private readonly Dictionary<string, Member> membersByNumber = new(StringComparer.OrdinalIgnoreCase);
 
-    // Antrean peminjaman per kode bahan pustaka menggunakan Queue
-    private readonly Dictionary<string, Queue<Member>> reservationQueues = new(StringComparer.OrdinalIgnoreCase);
-
     // Akumulasi total denda harian perpustakaan
     private int todayTotalFine = 0;
 
@@ -83,11 +80,11 @@ public class Library
             throw new BorrowLimitExceededException(member.MemberNumber, member.BorrowLimit);
         }
 
-        // 2. Jika bahan pustaka sedang dipinjam
+        // 2. Meminjam bahan pustaka yang sedang dipinjam melempar ItemNotAvailableException
         if (item.Status != "Tersedia" || item.Borrower != null)
         {
-            Console.WriteLine($"[Ditolak] Bahan pustaka [{item.Code}] '{item.Title}' sedang tidak tersedia (sedang dipinjam oleh {item.Borrower?.Name}).");
-            return false;
+            throw new ItemNotAvailableException(item.Code,
+                $"Bahan pustaka [{item.Code}] '{item.Title}' sedang tidak tersedia (sedang dipinjam oleh {item.Borrower?.Name}).");
         }
 
         // Proses peminjaman
@@ -125,27 +122,19 @@ public class Library
             return;
         }
 
-        if (!reservationQueues.TryGetValue(code, out var queue))
-        {
-            queue = new Queue<Member>();
-            reservationQueues[code] = queue;
-        }
-
-        if (queue.Contains(member))
+        if (item.WaitingQueue.Contains(member))
         {
             Console.WriteLine($"[Peringatan] Anggota {member.Name} sudah berada di dalam antrean untuk bahan pustaka ini.");
             return;
         }
 
-        queue.Enqueue(member);
-        Console.WriteLine($"[Antrean Berhasil] {member.Name} masuk antrean ke-{queue.Count} untuk [{item.Code}] {item.Title}.");
+        item.Enqueue(member);
     }
 
     // Mengembalikan antrean peminjaman untuk bahan pustaka tertentu
     public Queue<Member>? GetReservationQueue(string code)
     {
-        reservationQueues.TryGetValue(code, out var queue);
-        return queue;
+        return FindItem(code)?.WaitingQueue;
     }
 
     // Mengembalikan bahan pustaka, menghitung denda, dan otomatis mengalihkan ke antrean terdepan
@@ -189,24 +178,21 @@ public class Library
     // Logika pemrosesan antrean terdepan
     private void ProcessNextInQueue(LibraryItem item)
     {
-        if (reservationQueues.TryGetValue(item.Code, out var queue) && queue.Count > 0)
+        while (item.WaitingQueue.Count > 0)
         {
-            while (queue.Count > 0)
-            {
-                Member nextMember = queue.Dequeue();
+            Member nextMember = item.WaitingQueue.Dequeue();
 
-                // Pastikan anggota di antrean masih memiliki kuota pinjam
-                if (nextMember.CanBorrow())
-                {
-                    item.Borrow(nextMember);
-                    nextMember.AddLoan(item);
-                    Console.WriteLine($"\n>>> [ANTREAN OTOMATIS] Bahan pustaka [{item.Code}] {item.Title} otomatis langsung dipinjamkan ke {nextMember.Name} (No: {nextMember.MemberNumber}) dari antrean terdepan!");
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine($"\n[Info Antrean] Anggota {nextMember.Name} (No: {nextMember.MemberNumber}) dilewati karena kuota pinjamannya saat ini penuh.");
-                }
+            // Pastikan anggota di antrean masih memiliki kuota pinjam
+            if (nextMember.CanBorrow())
+            {
+                item.Borrow(nextMember);
+                nextMember.AddLoan(item);
+                Console.WriteLine($"\n>>> [ANTREAN OTOMATIS] Bahan pustaka [{item.Code}] {item.Title} otomatis langsung dipinjamkan ke {nextMember.Name} (No: {nextMember.MemberNumber}) dari antrean terdepan!");
+                break;
+            }
+            else
+            {
+                Console.WriteLine($"\n[Info Antrean] Anggota {nextMember.Name} (No: {nextMember.MemberNumber}) dilewati karena kuota pinjamannya saat ini penuh.");
             }
         }
     }
@@ -225,9 +211,9 @@ public class Library
         foreach (var item in allItems)
         {
             item.Info();
-            if (reservationQueues.TryGetValue(item.Code, out var queue) && queue.Count > 0)
+            if (item.WaitingCount > 0)
             {
-                Console.WriteLine($"   └── [Antrean]: {queue.Count} anggota sedang mengantre.");
+                Console.WriteLine($"   └── [Antrean]: {item.WaitingCount} anggota sedang mengantre.");
             }
         }
     }
@@ -254,11 +240,7 @@ public class Library
             {
                 anyBorrowed = true;
                 borrowedCount++;
-                string queueInfo = "";
-                if (reservationQueues.TryGetValue(item.Code, out var queue) && queue.Count > 0)
-                {
-                    queueInfo = $" | [Antrean: {queue.Count} orang]";
-                }
+                string queueInfo = item.WaitingCount > 0 ? $" | [Antrean: {item.WaitingCount} orang]" : "";
                 Console.WriteLine($" • [{item.Code}] {item.Title} -> Dipinjam oleh {item.Borrower.Name} ({item.Borrower.MemberNumber}){queueInfo}");
             }
         }
