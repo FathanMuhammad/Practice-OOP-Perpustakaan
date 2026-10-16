@@ -59,18 +59,17 @@ internal class Program
     static void DisplayMembers()
     {
         Console.WriteLine("=== DAFTAR ANGGOTA PERPUSTAKAAN ===");
-        if (memberCount == 0)
+        var allMembers = perpustakaan.GetAllMembers();
+        if (allMembers.Count == 0)
         {
             Console.WriteLine("Belum ada data anggota terdaftar.");
             return;
         }
 
-        for (int i = 0; i < memberCount; i++)
+        foreach (var m in allMembers)
         {
-            if (members[i] == null) continue;
-
-            string tipe = members[i].Premium ? "Premium" : "Reguler";
-            Console.WriteLine($"[{members[i].MemberNumber}] {members[i].Name} | Tipe: {tipe} | Kuota Pinjam: {members[i].BorrowLimit} item");
+            string tipe = m.Premium ? "Premium" : "Reguler";
+            Console.WriteLine($"[{m.MemberNumber}] {m.Name} | Tipe: {tipe} | Kuota Pinjam: {m.BorrowedCount}/{m.BorrowLimit} item");
         }
     }
 
@@ -90,7 +89,27 @@ internal class Program
         }
 
         string itemCode = ReadNonEmptyString("Masukkan Kode Bahan Pustaka: ");
-        perpustakaan.Borrow(member, itemCode);
+        try
+        {
+            bool success = perpustakaan.Borrow(member, itemCode);
+            if (!success)
+            {
+                var item = perpustakaan.FindItem(itemCode);
+                if (item != null && item.Status != "Tersedia")
+                {
+                    Console.Write("Apakah Anda ingin masuk ke antrean peminjaman untuk bahan pustaka ini? (y/n): ");
+                    string? ans = Console.ReadLine();
+                    if (ans?.Trim().Equals("y", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        perpustakaan.EnqueueBorrower(member, itemCode);
+                    }
+                }
+            }
+        }
+        catch (BorrowLimitExceededException ex)
+        {
+            Console.WriteLine($"[Ditolak] {ex.Message}");
+        }
     }
 
     // =============================================
@@ -189,8 +208,15 @@ internal class Program
 
         if (newItem != null)
         {
-            perpustakaan.AddItem(newItem);
-            Console.WriteLine($"[Berhasil] Bahan pustaka [{code}] {title} berhasil ditambahkan.");
+            try
+            {
+                perpustakaan.AddItem(newItem);
+                Console.WriteLine($"[Berhasil] Bahan pustaka [{code}] {title} berhasil ditambahkan.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Gagal] {ex.Message}");
+            }
         }
     }
 
@@ -199,28 +225,7 @@ internal class Program
     // =============================================
     static Member? FindMember(string memberId)
     {
-        // Menggunakan data member yang sudah di-seed
-        // Karena Library tidak expose FindMember, kita simpan referensi di sini
-        for (int i = 0; i < members.Length; i++)
-        {
-            if (members[i] != null && members[i].MemberNumber == memberId)
-                return members[i];
-        }
-        return null;
-    }
-
-    // Penyimpanan referensi member untuk pencarian
-    static Member[] members = new Member[50];
-    static int memberCount = 0;
-
-    static void AddMember(Member member)
-    {
-        perpustakaan.AddMember(member);
-        if (memberCount < members.Length)
-        {
-            members[memberCount] = member;
-            memberCount++;
-        }
+        return perpustakaan.FindMember(memberId);
     }
 
     // =============================================
@@ -234,10 +239,10 @@ internal class Program
         perpustakaan.AddItem(new Dvd("3", "Belajar .NET", 2023, 90));
 
         // Anggota Awal
-        AddMember(new Member("1", "Irza", false));     // Reguler
-        AddMember(new Member("2", "Fathan", true));     // Premium
+        perpustakaan.AddMember(new Member("1", "Irza", false));     // Reguler (Batas 2)
+        perpustakaan.AddMember(new Member("2", "Fathan", true));     // Premium (Batas 4)
 
-        Console.WriteLine($"\n[Info] Data awal berhasil dimuat: {LibraryItem.TotalCreated} bahan pustaka, {memberCount} anggota.");
+        Console.WriteLine($"\n[Info] Data awal berhasil dimuat: {LibraryItem.TotalCreated} bahan pustaka, {perpustakaan.GetAllMembers().Count} anggota.");
     }
 
     // =============================================
