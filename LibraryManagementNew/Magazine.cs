@@ -1,10 +1,9 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Class Magazine (Inheritance dari LibraryItem, Implements IRenewable):
-/// Merepresentasikan bahan pustaka berjenis Majalah.
-/// Majalah memiliki Edition, bisa diperpanjang sesuai MaxRenewals.
-/// </summary>
+// Class Magazine (Inheritance dari LibraryItem, Implements IRenewable):
+// Merepresentasikan bahan pustaka berjenis Majalah.
+// Majalah memiliki Edition, bisa diperpanjang sesuai MaxRenewals.
+
 public class Magazine : LibraryItem, IRenewable
 {
     // Property khusus Magazine

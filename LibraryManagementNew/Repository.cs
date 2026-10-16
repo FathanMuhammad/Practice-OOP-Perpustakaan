@@ -1,10 +1,10 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Generic Repository untuk penyimpanan bahan pustaka.
-/// Memiliki type constraint ke class induk LibraryItem (where T : LibraryItem).
-/// Menggunakan List<T> untuk penyimpanan dan Dictionary<string, T> untuk pencarian berbasis kode.
-/// </summary>
+
+// Generic Repository untuk penyimpanan bahan pustaka.
+// Memiliki type constraint ke class induk LibraryItem (where T : LibraryItem).
+// Menggunakan List<T> untuk penyimpanan dan Dictionary<string, T> untuk pencarian berbasis kode.
+
 public class Repository<T> where T : LibraryItem
 {
     private readonly List<T> items = new();

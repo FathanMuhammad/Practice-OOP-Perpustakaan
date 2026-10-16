@@ -1,11 +1,10 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Class Library:
-/// Mengelola bahan pustaka menggunakan Generic Repository<LibraryItem>,
-/// mengelola anggota menggunakan List dan Dictionary,
-/// serta antrean peminjaman menggunakan Queue.
-/// </summary>
+// Class Library:
+// Mengelola bahan pustaka menggunakan Generic Repository<LibraryItem>,
+// mengelola anggota menggunakan List dan Dictionary,
+// serta antrean peminjaman menggunakan Queue.
+
 public class Library
 {
     // Penyimpanan bahan pustaka memakai Repository<T> dengan constraint where T : LibraryItem
