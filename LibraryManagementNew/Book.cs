@@ -40,13 +40,4 @@ public class Book : LibraryItem, IRenewable
         Console.WriteLine($"[Berhasil] Perpanjangan ke-{renewalCount} untuk Buku [{Code}] {Title}.");
         return true;
     }
-
-    // Override Virtual: Info() menampilkan informasi tambahan pengarang (Author)
-    public override void Info()
-    {
-        string statusInfo = Status == "Tersedia"
-            ? "Tersedia"
-            : $"Dipinjam oleh {Borrower?.Name}";
-        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Pengarang: {Author} | Tahun: {PublishYear} | Status: {statusInfo}");
-    }
 }
