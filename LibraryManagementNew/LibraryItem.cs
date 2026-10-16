@@ -105,6 +105,6 @@ public abstract class LibraryItem
         string statusInfo = Status == "Tersedia"
             ? "Tersedia"
             : $"Dipinjam oleh {Borrower?.Name}";
-        Console.WriteLine($"[{Code}] {Title} | Tahun: {PublishYear} | Status: {statusInfo}");
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Tahun: {PublishYear} | Status: {statusInfo}");
     }
 }

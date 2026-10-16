@@ -230,10 +230,8 @@ internal class Program
     {
         // Bahan Pustaka Awal
         perpustakaan.AddItem(new Book("1", "Pemrograman C#", 2023, "John Doe"));
-        perpustakaan.AddItem(new Book("2", "Algoritma & Struktur Data", 2021, "Jane Smith"));
-        perpustakaan.AddItem(new Magazine("1", "National Geographic", 2024, "Edisi Januari"));
-        perpustakaan.AddItem(new Dvd("1", "Tutorial OOP", 2022, 120));
-        perpustakaan.AddItem(new Dvd("2", "Belajar .NET", 2023, 90));
+        perpustakaan.AddItem(new Magazine("2", "National Geographic", 2024, "Edisi Januari"));
+        perpustakaan.AddItem(new Dvd("3", "Belajar .NET", 2023, 90));
 
         // Anggota Awal
         AddMember(new Member("1", "Irza", false));     // Reguler

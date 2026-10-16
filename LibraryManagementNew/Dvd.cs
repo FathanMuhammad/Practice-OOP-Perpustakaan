@@ -30,6 +30,6 @@ public class Dvd : LibraryItem
         string statusInfo = Status == "Tersedia"
             ? "Tersedia"
             : $"Dipinjam oleh {Borrower?.Name}";
-        Console.WriteLine($"[{Code}] {Title} | Durasi: {DurationMinutes} menit | Tahun: {PublishYear} | Status: {statusInfo}");
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Durasi: {DurationMinutes} menit | Tahun: {PublishYear} | Status: {statusInfo}");
     }
 }
