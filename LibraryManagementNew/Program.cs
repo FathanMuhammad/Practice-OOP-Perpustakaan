@@ -9,6 +9,7 @@ internal class Program
     {
         {
             SafeClear();
+
             SeedInitialData();
             Console.WriteLine("\nTekan Enter untuk melanjutkan ke menu utama...");
             Console.ReadLine();
