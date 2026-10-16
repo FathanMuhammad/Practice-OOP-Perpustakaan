@@ -134,6 +134,6 @@ public abstract class LibraryItem
             ? $" | Antrian: {_waitingQueue.Count} orang"
             : "";
 
-        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | GetType()| Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
     }
 }

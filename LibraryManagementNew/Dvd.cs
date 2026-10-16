@@ -24,12 +24,17 @@ public class Dvd : LibraryItem
         return 3000; // Denda DVD Rp 3.000 per hari
     }
 
-    // Override Virtual: Info() menampilkan informasi tambahan durasi
+    // Override Virtual: Info() menampilkan informasi Dvd termasuk Durasi (DurationMinutes)
     public override void Info()
     {
         string statusInfo = Status == "Tersedia"
             ? "Tersedia"
             : $"Dipinjam oleh {Borrower?.Name}";
-        Console.WriteLine($"[{Code}] {Title} | {GetType().Name} | Durasi: {DurationMinutes} menit | Tahun: {PublishYear} | Status: {statusInfo}");
+
+        string queueInfo = WaitingCount > 0
+            ? $" | Antrian: {WaitingCount} orang"
+            : "";
+
+        Console.WriteLine($"[{Code}] {Title} | Dvd | Durasi: {DurationMinutes} menit | Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
     }
 }
