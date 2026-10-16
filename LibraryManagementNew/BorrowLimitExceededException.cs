@@ -6,20 +6,13 @@ namespace LibraryManagementNew;
 /// </summary>
 public class BorrowLimitExceededException : Exception
 {
-    public string MemberNumber { get; }
-    public int BorrowLimit { get; }
+    //public string MemberNumber { get; }
+    //public int BorrowLimit { get; }
 
     public BorrowLimitExceededException(string memberNumber, int borrowLimit)
         : base($"Anggota [{memberNumber}] telah melebihi batas maksimal peminjaman ({borrowLimit} item).")
     {
-        MemberNumber = memberNumber;
-        BorrowLimit = borrowLimit;
-    }
-
-    public BorrowLimitExceededException(string memberNumber, int borrowLimit, string message)
-        : base(message)
-    {
-        MemberNumber = memberNumber;
-        BorrowLimit = borrowLimit;
+        //MemberNumber = memberNumber;
+        //BorrowLimit = borrowLimit;
     }
 }

@@ -7,12 +7,12 @@ namespace LibraryManagementNew;
 public class ItemNotAvailableException : Exception
 {
     // Property tambahan: Kode bahan pustaka yang gagal dipinjam
-    public string ItemCode { get; }
+    //public string ItemCode { get; }
 
     // Constructor: Menerima kode item dan pesan error, lalu diteruskan ke base Exception
     public ItemNotAvailableException(string itemCode, string message)
         : base(message)
     {
-        ItemCode = itemCode;
+        //ItemCode = itemCode;
     }
 }
