@@ -37,6 +37,7 @@ public class Book : LibraryItem, IRenewable
 
         renewalCount++;
         Console.WriteLine($"[Berhasil] Perpanjangan ke-{renewalCount} untuk Buku [{Code}] {Title}.");
+        ExtendDueDate(7);
         return true;
     }
     

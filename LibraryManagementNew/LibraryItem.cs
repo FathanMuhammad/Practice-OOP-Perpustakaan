@@ -20,6 +20,15 @@ public abstract class LibraryItem
     public Member? Borrower { get; private set; }    // Referensi ke Member yang meminjam (private set)
     protected int renewalCount;                      // Jumlah perpanjangan yang sudah dilakukan (protected)
 
+    // Fitur Tambahan (LINQ & Manajemen Jatuh Tempo)
+    public int BorrowCount { get; private set; } = 0;       // Berapa kali bahan pustaka ini pernah dipinjam
+    public DateTime? BorrowDate { get; private set; }       // Waktu saat dipinjam
+    public DateTime? DueDate { get; private set; }          // Batas akhir pengembalian (jatuh tempo)
+
+    // Property kalkulasi keterlambatan
+    public bool IsOverdue => Status == "Dipinjam" && DueDate.HasValue && DateTime.Now > DueDate.Value;
+    public int OverdueDays => IsOverdue && DueDate.HasValue ? Math.Max(1, (DateTime.Now.Date - DueDate.Value.Date).Days) : 0;
+
     // Queue (Collection FIFO): Antrian anggota yang ingin meminjam saat item sedang dipinjam
     private Queue<Member> _waitingQueue = new Queue<Member>();
 
@@ -34,6 +43,9 @@ public abstract class LibraryItem
         Status = "Tersedia";
         Borrower = null;
         renewalCount = 0;
+        BorrowCount = 0;
+        BorrowDate = null;
+        DueDate = null;
 
         // Validasi tahun terbit: throw exception jika di luar batas (menggantikan pesan validasi)
         if (!IsValidYear(publishYear))
@@ -77,9 +89,28 @@ public abstract class LibraryItem
         return baseFine;
     }
 
+    // Method: Tambah frekuensi peminjaman manual (berguna untuk seeding data riwayat)
+    public void AddBorrowCount(int count)
+    {
+        if (count > 0)
+        {
+            BorrowCount += count;
+        }
+    }
+
+    // Method: Perpanjang tanggal jatuh tempo
+    public void ExtendDueDate(int days = 7)
+    {
+        if (DueDate.HasValue)
+        {
+            DueDate = DueDate.Value.AddDays(days);
+            Console.WriteLine($"[Info] Tanggal jatuh tempo diperpanjang hingga: {DueDate.Value:dd/MM/yyyy}");
+        }
+    }
+
     // Method: Proses peminjaman bahan pustaka
     // Melempar ItemNotAvailableException jika item sedang dipinjam (throw)
-    public bool Borrow(Member member)
+    public bool Borrow(Member member, DateTime? dueDate = null)
     {
         if (Status != "Tersedia")
         {
@@ -90,7 +121,11 @@ public abstract class LibraryItem
         Status = "Dipinjam";
         Borrower = member;
         renewalCount = 0;
-        Console.WriteLine($"[Berhasil] {member.Name} meminjam [{Code}] {Title}.");
+        BorrowCount++;
+        BorrowDate = DateTime.Now;
+        DueDate = dueDate ?? DateTime.Now.AddDays(7); // Default 7 hari masa pinjam
+
+        Console.WriteLine($"[Berhasil] {member.Name} meminjam [{Code}] {Title} (Jatuh tempo: {DueDate.Value:dd/MM/yyyy}).");
         return true;
     }
 
@@ -108,6 +143,8 @@ public abstract class LibraryItem
         Console.WriteLine($"[Info] Bahan pustaka [{Code}] {Title} telah dikembalikan.");
         Status = "Tersedia";
         Borrower = null;
+        BorrowDate = null;
+        DueDate = null;
         renewalCount = 0;
 
         // Cek antrian: jika ada anggota yang menunggu, otomatis pinjamkan
@@ -125,9 +162,17 @@ public abstract class LibraryItem
     // Virtual Method: Cetak informasi bahan pustaka (bisa di-override oleh child class)
     public virtual void Info()
     {
-        string statusInfo = Status == "Tersedia"
-            ? "Tersedia"
-            : $"Dipinjam oleh {Borrower?.Name}";
+        string statusInfo;
+        if (Status == "Tersedia")
+        {
+            statusInfo = "Tersedia";
+        }
+        else
+        {
+            string overdueText = IsOverdue ? $" [TERLAMBAT {OverdueDays} HARI]" : "";
+            string dueText = DueDate.HasValue ? $" (Jatuh Tempo: {DueDate.Value:dd/MM/yyyy}{overdueText})" : "";
+            statusInfo = $"Dipinjam oleh {Borrower?.Name}{dueText}";
+        }
 
         string detailInfo = this switch
         {
@@ -140,6 +185,6 @@ public abstract class LibraryItem
             ? $" | Antrian: {_waitingQueue.Count} orang"
             : "";
 
-        Console.WriteLine($"[{Code}] {Title} | {GetType().Name}{detailInfo} | Tahun: {PublishYear} | Status: {statusInfo}{queueInfo}");
+        Console.WriteLine($"[{Code}] {Title} | {GetType().Name}{detailInfo} | Tahun: {PublishYear} | Dipinjam: {BorrowCount}x | Status: {statusInfo}{queueInfo}");
     }
 }

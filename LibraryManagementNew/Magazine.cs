@@ -37,6 +37,7 @@ public class Magazine : LibraryItem, IRenewable
 
         renewalCount++;
         Console.WriteLine($"[Berhasil] Perpanjangan ke-{renewalCount} untuk Majalah [{Code}] {Title}.");
+        ExtendDueDate(7);
         return true;
     }
 
