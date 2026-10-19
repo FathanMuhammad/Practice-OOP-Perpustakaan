@@ -73,9 +73,6 @@ public class Library
     // Mengambil daftar seluruh anggota (List)
     public IReadOnlyList<Member> GetAllMembers() => members;
 
-    // Mengambil seluruh koleksi bahan pustaka (IReadOnlyList)
-    public IReadOnlyList<LibraryItem> GetAllItems() => itemRepository.GetAll();
-
     // Meminjam bahan pustaka
     public bool Borrow(Member member, string code, DateTime? dueDate = null)
     {

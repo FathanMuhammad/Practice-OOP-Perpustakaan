@@ -330,12 +330,6 @@ internal class Program
             perpustakaan.AddMember(new Member("4", "Citra", false));
             perpustakaan.AddMember(new Member("5", "Dewi", false));
             perpustakaan.AddMember(new Member("6", "Eko", false));
-            perpustakaan.AddMember(new Member("1", "Irza", false));
-            perpustakaan.AddMember(new Member("2", "Andi", false));
-            perpustakaan.AddMember(new Member("3", "Budi", false));
-            perpustakaan.AddMember(new Member("4", "Citra", false));
-            perpustakaan.AddMember(new Member("5", "Dewi", false));
-            perpustakaan.AddMember(new Member("6", "Eko", false));
 
             // Anggota Premium (Batas 4 peminjaman)
             perpustakaan.AddMember(new Member("7", "Fathan", true));
