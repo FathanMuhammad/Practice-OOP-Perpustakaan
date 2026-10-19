@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace LibraryManagementNew;
 
 // Class Library:
@@ -314,4 +316,78 @@ public class Library
         Console.WriteLine($"Total Sedang Dipinjam: {borrowedCount}");
         Console.WriteLine("==========================================");
     }
+
+    #region Bagian B - Fitur Asynchronous
+    // Pengingat jatuh tempo besok dikirim bersamaan dengan Task.WhenAll
+    public async Task SendDueDateRemindersAsync()
+    {
+        Console.WriteLine("\n=== PENGIRIMAN PENGINGAT JATUH TEMPO (BESOK) ===");
+
+        DateTime tomorrow = DateTime.Now.Date.AddDays(1);
+
+        // Ambil anggota yang memiliki pinjaman dengan tanggal jatuh tempo besok
+        var targetMembers = members
+            .Where(m => m.BorrowedItems.Any(item => item.DueDate.HasValue && item.DueDate.Value.Date == tomorrow))
+            .Select(m => new
+            {
+                Member = m,
+                Items = m.BorrowedItems.Where(item => item.DueDate.HasValue && item.DueDate.Value.Date == tomorrow).ToList()
+            })
+            .ToList();
+
+        if (targetMembers.Count == 0)
+        {
+            Console.WriteLine($"Tidak ada anggota yang memiliki pinjaman jatuh tempo besok ({tomorrow:dd/MM/yyyy}).");
+            return;
+        }
+
+        Console.WriteLine($"Ditemukan {targetMembers.Count} anggota dengan pinjaman jatuh tempo besok ({tomorrow:dd/MM/yyyy}).");
+        Console.WriteLine("Mengirim pengingat secara bersamaan menggunakan Task.WhenAll...\n");
+
+        var stopwatch = Stopwatch.StartNew();
+
+        // Buat list Task pengiriman pengingat
+        var reminderTasks = targetMembers.Select(target => SendSingleReminderAsync(target.Member, target.Items));
+
+        // Tunggu semua pengiriman selesai secara bersamaan
+        await Task.WhenAll(reminderTasks);
+
+        stopwatch.Stop();
+        Console.WriteLine($"\n[Selesai] Semua pengingat berhasil dikirim dalam {stopwatch.ElapsedMilliseconds} ms.");
+    }
+
+    private async Task SendSingleReminderAsync(Member member, List<LibraryItem> items)
+    {
+        string itemTitles = string.Join(", ", items.Select(i => $"[{i.Code}] {i.Title}"));
+        Console.WriteLine($"[Kirim] Mengirim pengingat ke {member.Name} ({member.MemberNumber}) untuk {itemTitles}...");
+
+        // Simulasi pengiriman pesan via network
+        await Task.Delay(1000);
+
+        Console.WriteLine($"[Terkirim] Notifikasi sukses diterima oleh {member.Name} ({member.MemberNumber}).");
+    }
+
+    // Pengecekan seluruh bahan pustaka (Stock Opname) dengan CancellationToken
+    public async Task RunStockOpnameAsync(CancellationToken cancellationToken)
+    {
+        var allItems = itemRepository.GetAll();
+        Console.WriteLine($"\nMemulai Stock Opname untuk total {allItems.Count} bahan pustaka...");
+
+        int count = 0;
+        for (int i = 0; i < allItems.Count; i++)
+        {
+            // Cek pembatalan sebelum memproses item
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var item = allItems[i];
+            Console.WriteLine($"[{i + 1}/{allItems.Count}] Memeriksa: [{item.Code}] {item.Title} | Status: {item.Status}");
+            count++;
+
+            // Simulasi waktu pengecekan fisik per item
+            await Task.Delay(300, cancellationToken);
+        }
+
+        Console.WriteLine($"\n[Selesai] Stock Opname selesai! Seluruh {count} bahan pustaka berhasil diverifikasi.");
+    }
+    #endregion
 }

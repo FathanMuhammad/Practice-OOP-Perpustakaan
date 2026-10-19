@@ -18,7 +18,7 @@ internal class Program
             while (isRunning)
             {
                 DisplayMenu();
-                int choice = ReadIntInRange("Pilih menu (0-13): ", 0, 13);
+                int choice = ReadIntInRange("Pilih menu (0-15): ", 0, 15);
                 Console.WriteLine();
                 HandleMenu(choice);
 
@@ -64,6 +64,8 @@ internal class Program
             Console.WriteLine("11. [LINQ] Total Denda per Anggota");
             Console.WriteLine("12. [LINQ] 3 Bahan Pustaka Paling Sering Dipinjam");
             Console.WriteLine("13. [LINQ] Anggota yang Sedang Terlambat Mengembalikan");
+            Console.WriteLine("14. [ASYNC] Kirim Pengingat Jatuh Tempo Besok (Task.WhenAll)");
+            Console.WriteLine("15. [ASYNC] Pengecekan Bahan Pustaka / Stock Opname (CancellationToken)");
             Console.WriteLine("0. Keluar Program");
         }
 
@@ -84,6 +86,8 @@ internal class Program
                 case 11: LinqQuery.TampilkanTotalDendaPerAnggota(perpustakaan); break;
                 case 12: perpustakaan.PrintTopBorrowedItems(3); break;
                 case 13: perpustakaan.PrintOverdueMembers(); break;
+                case 14: perpustakaan.SendDueDateRemindersAsync().Wait(); break;
+                case 15: ProcessStockOpnameAsync().Wait(); break;
                 case 0:
                     isRunning = false;
                     Console.WriteLine("Terima kasih telah menggunakan Sistem Perpustakaan.");
@@ -266,6 +270,78 @@ internal class Program
         }
 
         // =============================================
+        //  FITUR ASYNC: PENGECEKAN BAHAN PUSTAKA (STOCK OPNAME)
+        // =============================================
+        static async Task ProcessStockOpnameAsync()
+        {
+            Console.WriteLine("--- PENGECEKAN SELURUH BAHAN PUSTAKA (STOCK OPNAME) ---");
+            Console.WriteLine("Pengaturan batas waktu otomatis (timeout):");
+            Console.WriteLine("- Ketik durasi dalam detik (misal: 3 untuk timeout 3 detik)");
+            Console.WriteLine("- Tekan Enter untuk default (4 detik)");
+            Console.WriteLine("- Ketik 0 untuk tanpa batas waktu otomatis");
+
+            int timeoutSeconds = ReadOptionalNonNegativeInt("Masukkan batas waktu (detik) [default 4]: ", 4);
+
+            using var cts = new CancellationTokenSource();
+            bool canceledByUser = false;
+
+            if (timeoutSeconds > 0)
+            {
+                cts.CancelAfter(TimeSpan.FromSeconds(timeoutSeconds));
+                Console.WriteLine($"\n[Info] Batas waktu otomatis disetel: {timeoutSeconds} detik.");
+            }
+            else
+            {
+                Console.WriteLine("\n[Info] Berjalan tanpa batas waktu otomatis.");
+            }
+
+            Console.WriteLine("[Info] Tekan tombol 'C' kapan saja untuk membatalkan proses secara manual.\n");
+
+            // Task listener untuk mendengarkan tombol 'C' dari pengguna jika input tidak di-redirect
+            var keyListener = Task.Run(async () =>
+            {
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        if (!Console.IsInputRedirected && Console.KeyAvailable)
+                        {
+                            var key = Console.ReadKey(intercept: true);
+                            if (key.Key == ConsoleKey.C)
+                            {
+                                canceledByUser = true;
+                                Console.WriteLine("\n[User] Pengguna meminta pembatalan (menekan 'C')...");
+                                cts.Cancel();
+                                break;
+                            }
+                        }
+                        await Task.Delay(100);
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                }
+            });
+
+            try
+            {
+                await perpustakaan.RunStockOpnameAsync(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                if (canceledByUser)
+                {
+                    Console.WriteLine("\n[Dibatalkan] Proses Stock Opname berhasil dibatalkan oleh pengguna.");
+                }
+                else
+                {
+                    Console.WriteLine($"\n[Batas Waktu] Proses Stock Opname terhenti otomatis karena mencapai batas waktu ({timeoutSeconds} detik).");
+                }
+            }
+        }
+
+        // =============================================
         //  HELPER: Mencari Member dari daftar
         // =============================================
         static Member? FindMember(string memberId)
@@ -392,6 +468,28 @@ internal class Program
             {
                 perpustakaan.Borrow(fathan, "B004", DateTime.Now.AddDays(5));
             }
+
+            // 3. Simulasi Pinjaman Jatuh Tempo Besok (untuk fitur Pengingat Async)
+            // Dewi (Anggota 5 - Reguler) meminjam B006, jatuh tempo besok
+            var dewi = perpustakaan.FindMember("5");
+            if (dewi != null)
+            {
+                perpustakaan.Borrow(dewi, "B006", DateTime.Now.AddDays(1));
+            }
+
+            // Gilang (Anggota 8 - Premium) meminjam D003, jatuh tempo besok
+            var gilang = perpustakaan.FindMember("8");
+            if (gilang != null)
+            {
+                perpustakaan.Borrow(gilang, "D003", DateTime.Now.AddDays(1));
+            }
+
+            // Hana (Anggota 9 - Premium) meminjam M003, jatuh tempo besok
+            var hana = perpustakaan.FindMember("9");
+            if (hana != null)
+            {
+                perpustakaan.Borrow(hana, "M003", DateTime.Now.AddDays(1));
+            }
         }
 
         // =============================================
@@ -454,6 +552,18 @@ internal class Program
             if (int.TryParse(input, out int result) && result > 0)
                 return result;
             Console.WriteLine($"[Info] Input tidak valid, menggunakan default {defaultValue} hari.");
+            return defaultValue;
+        }
+
+        static int ReadOptionalNonNegativeInt(string prompt, int defaultValue)
+        {
+            Console.Write(prompt);
+            string? input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+                return defaultValue;
+            if (int.TryParse(input, out int result) && result >= 0)
+                return result;
+            Console.WriteLine($"[Info] Input tidak valid, menggunakan default {defaultValue} detik.");
             return defaultValue;
         }
 
