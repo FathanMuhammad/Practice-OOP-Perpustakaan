@@ -5,7 +5,7 @@ internal class Program
     static Library perpustakaan = new Library();
     static bool isRunning = true;
 
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         {
             SafeClear();
@@ -18,9 +18,9 @@ internal class Program
             while (isRunning)
             {
                 DisplayMenu();
-                int choice = ReadIntInRange("Pilih menu (0-13): ", 0, 13);
+                int choice = ReadIntInRange("Pilih menu (0-15): ", 0, 15);
                 Console.WriteLine();
-                HandleMenu(choice);
+                await HandleMenu(choice);
 
                 if (isRunning)
                 {
@@ -64,10 +64,12 @@ internal class Program
             Console.WriteLine("11. [LINQ] Total Denda per Anggota");
             Console.WriteLine("12. [LINQ] 3 Bahan Pustaka Paling Sering Dipinjam");
             Console.WriteLine("13. [LINQ] Anggota yang Sedang Terlambat Mengembalikan");
+            Console.WriteLine("14. [ASYNC] Kirim Pengingat Jatuh Tempo (Task.WhenAll)");
+            Console.WriteLine("15. [ASYNC] Stock Opname Bahan Pustaka (CancellationToken)");
             Console.WriteLine("0. Keluar Program");
         }
 
-        static void HandleMenu(int choice)
+        static async Task HandleMenu(int choice)
         {
             switch (choice)
             {
@@ -84,6 +86,8 @@ internal class Program
                 case 11: LinqQuery.TampilkanTotalDendaPerAnggota(perpustakaan); break;
                 case 12: perpustakaan.PrintTopBorrowedItems(3); break;
                 case 13: perpustakaan.PrintOverdueMembers(); break;
+                case 14: await AsyncService.KirimPengingatJatuhTempoAsync(perpustakaan); break;
+                case 15: await AsyncService.StockOpnameAsync(perpustakaan); break;
                 case 0:
                     isRunning = false;
                     Console.WriteLine("Terima kasih telah menggunakan Sistem Perpustakaan.");
@@ -391,6 +395,28 @@ internal class Program
             if (fathan != null)
             {
                 perpustakaan.Borrow(fathan, "B004", DateTime.Now.AddDays(5));
+            }
+
+            // 3. Simulasi Pinjaman yang Jatuh Tempo Besok (Pengujian Fitur Asinkron / Task.WhenAll)
+            // Dewi (Reguler) meminjam B002, jatuh tempo besok (H+1)
+            var dewi = perpustakaan.FindMember("5");
+            if (dewi != null)
+            {
+                perpustakaan.Borrow(dewi, "B002", DateTime.Now.AddDays(1));
+            }
+
+            // Eko (Reguler) meminjam M001, jatuh tempo besok (H+1)
+            var eko = perpustakaan.FindMember("6");
+            if (eko != null)
+            {
+                perpustakaan.Borrow(eko, "M001", DateTime.Now.AddDays(1));
+            }
+
+            // Gilang (Premium) meminjam D002, jatuh tempo besok (H+1)
+            var gilang = perpustakaan.FindMember("8");
+            if (gilang != null)
+            {
+                perpustakaan.Borrow(gilang, "D002", DateTime.Now.AddDays(1));
             }
         }
 
