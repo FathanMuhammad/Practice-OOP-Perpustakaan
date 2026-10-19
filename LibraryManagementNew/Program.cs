@@ -18,7 +18,7 @@ internal class Program
             while (isRunning)
             {
                 DisplayMenu();
-                int choice = ReadIntInRange("Pilih menu (0-11): ", 0, 11);
+                int choice = ReadIntInRange("Pilih menu (0-13): ", 0, 13);
                 Console.WriteLine();
                 HandleMenu(choice);
 
@@ -62,6 +62,8 @@ internal class Program
             Console.WriteLine("9. [LINQ] Bahan Pustaka Tersedia (Urut Judul)");
             Console.WriteLine("10. [LINQ] Jumlah Bahan Pustaka per Jenis");
             Console.WriteLine("11. [LINQ] Total Denda per Anggota");
+            Console.WriteLine("12. [LINQ] 3 Bahan Pustaka Paling Sering Dipinjam");
+            Console.WriteLine("13. [LINQ] Anggota yang Sedang Terlambat Mengembalikan");
             Console.WriteLine("0. Keluar Program");
         }
 
@@ -80,6 +82,8 @@ internal class Program
                 case 9: LinqQuery.TampilkanBahanPustakaTersediaUrutJudul(perpustakaan); break;
                 case 10: LinqQuery.TampilkanJumlahBahanPustakaPerJenis(perpustakaan); break;
                 case 11: LinqQuery.TampilkanTotalDendaPerAnggota(perpustakaan); break;
+                case 12: perpustakaan.PrintTopBorrowedItems(3); break;
+                case 13: perpustakaan.PrintOverdueMembers(); break;
                 case 0:
                     isRunning = false;
                     Console.WriteLine("Terima kasih telah menggunakan Sistem Perpustakaan.");
@@ -123,9 +127,10 @@ internal class Program
             }
 
             string itemCode = ReadNonEmptyString("Masukkan Kode Bahan Pustaka: ");
+            int loanDays = ReadOptionalPositiveInt("Masukkan masa pinjam (hari, tekan Enter untuk default 7 hari): ", 7);
             try
             {
-                perpustakaan.Borrow(member, itemCode);
+                perpustakaan.Borrow(member, itemCode, loanDays);
             }
             catch (BorrowLimitExceededException ex)
             {
@@ -325,12 +330,19 @@ internal class Program
             perpustakaan.AddMember(new Member("4", "Citra", false));
             perpustakaan.AddMember(new Member("5", "Dewi", false));
             perpustakaan.AddMember(new Member("6", "Eko", false));
+            perpustakaan.AddMember(new Member("1", "Irza", false));
+            perpustakaan.AddMember(new Member("2", "Andi", false));
+            perpustakaan.AddMember(new Member("3", "Budi", false));
+            perpustakaan.AddMember(new Member("4", "Citra", false));
+            perpustakaan.AddMember(new Member("5", "Dewi", false));
+            perpustakaan.AddMember(new Member("6", "Eko", false));
 
             // Anggota Premium (Batas 4 peminjaman)
-            perpustakaan.AddMember(new Member("7", "Fathan", true));
-            perpustakaan.AddMember(new Member("8", "Gilang", true));
-            perpustakaan.AddMember(new Member("9", "Hana", true));
-            perpustakaan.AddMember(new Member("10", "Intan", true));
+            perpustakaan.AddMember(new Member("A007", "Fathan", true));
+            perpustakaan.AddMember(new Member("A008", "Gilang", true));
+            perpustakaan.AddMember(new Member("A009", "Hana", true));
+            perpustakaan.AddMember(new Member("A010", "Intan", true));
+
 
             // ==========================================
             // INFORMASI DATA AWAL
@@ -341,6 +353,51 @@ internal class Program
                 $"{LibraryItem.TotalCreated} bahan pustaka, " +
                 $"{perpustakaan.GetAllMembers().Count} anggota."
             );
+
+            // Panggil simulasi transaksi awal khusus Bagian B (terpisah untuk mencegah conflict saat merge)
+            SeedBagianBTransactions();
+        }
+
+        // =============================================
+        //  HELPER: SIMULASI TRANSAKSI AWAL (BAGIAN B)
+        // =============================================
+        static void SeedBagianBTransactions()
+        {
+            // 1. Tambah riwayat frekuensi peminjaman masa lalu
+            perpustakaan.FindItem("B001")?.AddBorrowCount(4); // Pemrograman C# (+1 saat dipinjam = 5x)
+            perpustakaan.FindItem("B003")?.AddBorrowCount(4); // Clean Code (4x)
+            perpustakaan.FindItem("D001")?.AddBorrowCount(2); // Belajar .NET (+1 saat dipinjam = 3x)
+            perpustakaan.FindItem("M001")?.AddBorrowCount(2); // National Geographic (2x)
+            perpustakaan.FindItem("B002")?.AddBorrowCount(1); // Dasar-Dasar OOP (1x)
+
+            // 2. Simulasi Pinjaman Aktif & Keterlambatan
+            // Andi (Reguler) meminjam B001, jatuh tempo 3 hari yang lalu (Terlambat 3 hari)
+            var andi = perpustakaan.FindMember("2");
+            if (andi != null)
+            {
+                perpustakaan.Borrow(andi, "B001", DateTime.Now.AddDays(-3));
+            }
+
+            // Budi (Reguler) meminjam D001, jatuh tempo 5 hari yang lalu (Terlambat 5 hari)
+            var budi = perpustakaan.FindMember("3");
+            if (budi != null)
+            {
+                perpustakaan.Borrow(budi, "D001", DateTime.Now.AddDays(-5));
+            }
+
+            // Citra (Reguler) meminjam M002, jatuh tempo 2 hari yang lalu (Terlambat 2 hari)
+            var citra = perpustakaan.FindMember("4");
+            if (citra != null)
+            {
+                perpustakaan.Borrow(citra, "M002", DateTime.Now.AddDays(-2));
+            }
+
+            // Fathan (Premium) meminjam B004, jatuh tempo 5 hari ke depan (Masih aktif, tidak terlambat)
+            var fathan = perpustakaan.FindMember("7");
+            if (fathan != null)
+            {
+                perpustakaan.Borrow(fathan, "B004", DateTime.Now.AddDays(5));
+            }
         }
 
         // =============================================
@@ -392,6 +449,18 @@ internal class Program
                     return result;
                 Console.WriteLine("[Error] Masukkan angka positif (> 0).");
             }
+        }
+
+        static int ReadOptionalPositiveInt(string prompt, int defaultValue)
+        {
+            Console.Write(prompt);
+            string? input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+                return defaultValue;
+            if (int.TryParse(input, out int result) && result > 0)
+                return result;
+            Console.WriteLine($"[Info] Input tidak valid, menggunakan default {defaultValue} hari.");
+            return defaultValue;
         }
 
         static int? ReadPublicationYear(string prompt)
