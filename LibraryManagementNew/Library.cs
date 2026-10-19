@@ -5,6 +5,9 @@ namespace LibraryManagementNew;
 // mengelola anggota menggunakan List dan Dictionary,
 // serta antrean peminjaman menggunakan Queue.
 
+// Record untuk menyimpan riwayat denda yang telah dibayar
+public record FineRecord(string MemberNumber, string MemberName, string ItemCode, string ItemTitle, int LateDays, int Amount);
+
 public class Library
 {
     // Penyimpanan bahan pustaka memakai Repository<T> dengan constraint where T : LibraryItem
@@ -19,6 +22,11 @@ public class Library
 
     // Akumulasi total denda harian perpustakaan
     private int todayTotalFine = 0;
+
+    // Riwayat transaksi denda (untuk keperluan reporting & query LINQ)
+    private readonly List<FineRecord> fineHistory = new();
+
+    public IReadOnlyList<FineRecord> GetFineHistory() => fineHistory;
 
     public Library()
     {
@@ -61,6 +69,9 @@ public class Library
 
     // Mengambil daftar seluruh anggota (List)
     public IReadOnlyList<Member> GetAllMembers() => members;
+
+    // Mengambil seluruh koleksi bahan pustaka (IReadOnlyList)
+    public IReadOnlyList<LibraryItem> GetAllItems() => itemRepository.GetAll();
 
     // Meminjam bahan pustaka
     public bool Borrow(Member member, string code)
@@ -149,6 +160,8 @@ public class Library
         Console.WriteLine($"[Berhasil] [{item.Code}] {item.Title} telah berhasil dikembalikan oleh {borrower.Name}.");
         if (fine > 0)
         {
+            borrower.AddFine(fine);
+            fineHistory.Add(new FineRecord(borrower.MemberNumber, borrower.Name, item.Code, item.Title, lateDays, fine));
             Console.WriteLine($"[Denda] Terlambat {lateDays} hari. Denda yang dibayarkan: Rp {fine:N0}");
         }
 

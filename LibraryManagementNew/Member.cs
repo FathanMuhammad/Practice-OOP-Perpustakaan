@@ -14,6 +14,17 @@ public class Member
     // Read-only Property: Kuota pinjam (Premium: 4, Reguler: 2)
     public int BorrowLimit => Premium ? 4 : 2;
 
+    // Total akumulasi denda yang dibayarkan oleh anggota
+    public int TotalFines { get; private set; } = 0;
+
+    public void AddFine(int amount)
+    {
+        if (amount > 0)
+        {
+            TotalFines += amount;
+        }
+    }
+
     // Koleksi memakai List sesuai kebutuhan arsitektur baru
     private readonly List<LibraryItem> borrowedItems;
     private readonly List<string> history;
