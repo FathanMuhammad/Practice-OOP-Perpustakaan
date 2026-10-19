@@ -1,9 +1,8 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Exception yang dilempar ketika seorang anggota mencoba meminjam melebihi batas kuota peminjaman.
-/// Membawa informasi nomor anggota (MemberNumber) dan batas pinjamnya (BorrowLimit).
-/// </summary>
+// Exception yang dilempar ketika seorang anggota mencoba meminjam melebihi batas kuota peminjaman.
+// Membawa informasi nomor anggota (MemberNumber) dan batas pinjamnya (BorrowLimit).
+
 public class BorrowLimitExceededException : Exception
 {
     //public string MemberNumber { get; }

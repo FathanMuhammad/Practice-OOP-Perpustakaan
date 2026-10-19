@@ -1,11 +1,10 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Class Dvd (Inheritance dari LibraryItem):
-/// Merepresentasikan bahan pustaka berjenis DVD.
-/// DVD memiliki DurationMinutes, TIDAK mengimplementasikan IRenewable (tidak bisa diperpanjang).
-/// DVD meng-override Info() untuk menampilkan durasi.
-/// </summary>
+// Class Dvd (Inheritance dari LibraryItem):
+// Merepresentasikan bahan pustaka berjenis DVD.
+// DVD memiliki DurationMinutes, TIDAK mengimplementasikan IRenewable (tidak bisa diperpanjang).
+// DVD meng-override Info() untuk menampilkan durasi.
+
 public class Dvd : LibraryItem
 {
     // Property khusus Dvd

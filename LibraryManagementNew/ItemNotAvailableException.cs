@@ -1,8 +1,7 @@
 namespace LibraryManagementNew;
 
-
-/// Custom Exception: Dilempar ketika bahan pustaka yang ingin dipinjam sedang tidak tersedia (sedang dipinjam anggota lain).
-/// Turunan dari Exception (Inheritance).
+// Custom Exception: Dilempar ketika bahan pustaka yang ingin dipinjam sedang tidak tersedia (sedang dipinjam anggota lain).
+// Turunan dari Exception (Inheritance).
 
 public class ItemNotAvailableException : Exception
 {

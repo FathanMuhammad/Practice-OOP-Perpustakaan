@@ -1,10 +1,9 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Class Book (Inheritance dari LibraryItem, Implements IRenewable):
-/// Merepresentasikan bahan pustaka berjenis Buku.
-/// Buku memiliki Author, bisa diperpanjang sesuai MaxRenewals.
-/// </summary>
+// Class Book (Inheritance dari LibraryItem, Implements IRenewable):
+// Merepresentasikan bahan pustaka berjenis Buku.
+// Buku memiliki Author, bisa diperpanjang sesuai MaxRenewals.
+
 public class Book : LibraryItem, IRenewable
 {
     // Property khusus Book

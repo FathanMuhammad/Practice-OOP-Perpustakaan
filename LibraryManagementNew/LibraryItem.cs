@@ -1,10 +1,9 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Abstract Class LibraryItem:
-/// Class induk untuk semua jenis bahan pustaka (Book, Magazine, Dvd).
-/// Menerapkan konsep Abstraction, Encapsulation, dan Polymorphism.
-/// </summary>
+// Abstract Class LibraryItem:
+// Class induk untuk semua jenis bahan pustaka (Book, Magazine, Dvd).
+// Menerapkan konsep Abstraction, Encapsulation, dan Polymorphism.
+
 public abstract class LibraryItem
 {
     // Static Field: Menghitung total item yang pernah dibuat (garis bawah = static)

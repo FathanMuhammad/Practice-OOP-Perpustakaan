@@ -1,10 +1,9 @@
 namespace LibraryManagementNew;
 
-/// <summary>
-/// Class Member:
-/// Merepresentasikan anggota perpustakaan (Reguler / Premium).
-/// Menyimpan daftar pinjaman aktif dan riwayat menggunakan List.
-/// </summary>
+// Class Member:
+// Merepresentasikan anggota perpustakaan (Reguler / Premium).
+// Menyimpan daftar pinjaman aktif dan riwayat menggunakan List.
+
 public class Member
 {
     // Properties sesuai Class Diagram
