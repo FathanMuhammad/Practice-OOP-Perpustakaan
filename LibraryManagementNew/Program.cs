@@ -267,16 +267,75 @@ internal class Program
         // =============================================
         static void SeedInitialData()
         {
-            // Bahan Pustaka Awal
-            perpustakaan.AddItem(new Book("1", "Pemrograman C#", 2023, "John Doe"));
-            perpustakaan.AddItem(new Magazine("2", "National Geographic", 2024, "Edisi Januari"));
-            perpustakaan.AddItem(new Dvd("3", "Belajar .NET", 2023, 90));
+            // ==========================================
+            // BAHAN PUSTAKA AWAL
+            // ==========================================
 
-            // Anggota Awal
-            perpustakaan.AddMember(new Member("1", "Irza", false));     // Reguler (Batas 2)
-            perpustakaan.AddMember(new Member("2", "Fathan", true));     // Premium (Batas 4)
+            // Buku
+            perpustakaan.AddItem(new Book("B001", "Pemrograman C#", 2023, "John Doe"));
+            perpustakaan.AddItem(new Book("B002", "Dasar-Dasar OOP", 2022, "Robert Martin"));
+            perpustakaan.AddItem(new Book("B003", "Clean Code", 2008, "Robert C. Martin"));
+            perpustakaan.AddItem(new Book("B004", "Design Patterns", 1994, "Erich Gamma"));
+            perpustakaan.AddItem(new Book("B005", "The Pragmatic Programmer", 1999, "Andrew Hunt"));
+            perpustakaan.AddItem(new Book("B006", "Introduction to Algorithms", 2022, "Thomas H. Cormen"));
+            perpustakaan.AddItem(new Book("B007", "Head First Java", 2021, "Kathy Sierra"));
+            perpustakaan.AddItem(new Book("B008", "Database System Concepts", 2019, "Abraham Silberschatz"));
+            perpustakaan.AddItem(new Book("B009", "Learning SQL", 2020, "Alan Beaulieu"));
+            perpustakaan.AddItem(new Book("B010", "Web Development with ASP.NET", 2024, "Mark J. Price"));
 
-            Console.WriteLine($"\n[Info] Data awal berhasil dimuat: {LibraryItem.TotalCreated} bahan pustaka, {perpustakaan.GetAllMembers().Count} anggota.");
+            // Majalah
+            perpustakaan.AddItem(new Magazine("M001", "National Geographic", 2024, "Edisi Januari"));
+            perpustakaan.AddItem(new Magazine("M002", "National Geographic", 2024, "Edisi Februari"));
+            perpustakaan.AddItem(new Magazine("M003", "National Geographic", 2024, "Edisi Maret"));
+            perpustakaan.AddItem(new Magazine("M004", "Tech Monthly", 2023, "Edisi April"));
+            perpustakaan.AddItem(new Magazine("M005", "Tech Monthly", 2023, "Edisi Mei"));
+            perpustakaan.AddItem(new Magazine("M006", "Computer World", 2024, "Edisi Juni"));
+            perpustakaan.AddItem(new Magazine("M007", "Science Today", 2022, "Edisi Juli"));
+            perpustakaan.AddItem(new Magazine("M008", "Digital Innovation", 2024, "Edisi Agustus"));
+            perpustakaan.AddItem(new Magazine("M009", "Developer Weekly", 2025, "Edisi September"));
+            perpustakaan.AddItem(new Magazine("M010", "Technology Review", 2025, "Edisi Oktober"));
+
+            // DVD
+            perpustakaan.AddItem(new Dvd("D001", "Belajar .NET", 2023, 90));
+            perpustakaan.AddItem(new Dvd("D002", "C# untuk Pemula", 2022, 120));
+            perpustakaan.AddItem(new Dvd("D003", "Database Fundamentals", 2021, 85));
+            perpustakaan.AddItem(new Dvd("D004", "Web Development Basics", 2024, 100));
+            perpustakaan.AddItem(new Dvd("D005", "Algoritma dan Struktur Data", 2020, 110));
+            perpustakaan.AddItem(new Dvd("D006", "Object-Oriented Programming", 2023, 95));
+            perpustakaan.AddItem(new Dvd("D007", "Computer Networking", 2022, 80));
+            perpustakaan.AddItem(new Dvd("D008", "Operating System Concepts", 2021, 105));
+            perpustakaan.AddItem(new Dvd("D009", "Software Engineering", 2024, 115));
+            perpustakaan.AddItem(new Dvd("D010", "Cloud Computing Introduction", 2025, 90));
+
+
+            // ==========================================
+            // ANGGOTA AWAL
+            // ==========================================
+
+            // Anggota Reguler (Batas 2 peminjaman)
+            perpustakaan.AddMember(new Member("A001", "Irza", false));
+            perpustakaan.AddMember(new Member("A002", "Andi", false));
+            perpustakaan.AddMember(new Member("A003", "Budi", false));
+            perpustakaan.AddMember(new Member("A004", "Citra", false));
+            perpustakaan.AddMember(new Member("A005", "Dewi", false));
+            perpustakaan.AddMember(new Member("A006", "Eko", false));
+
+            // Anggota Premium (Batas 4 peminjaman)
+            perpustakaan.AddMember(new Member("A007", "Fathan", true));
+            perpustakaan.AddMember(new Member("A008", "Gilang", true));
+            perpustakaan.AddMember(new Member("A009", "Hana", true));
+            perpustakaan.AddMember(new Member("A010", "Intan", true));
+
+
+            // ==========================================
+            // INFORMASI DATA AWAL
+            // ==========================================
+
+            Console.WriteLine(
+                $"\n[Info] Data awal berhasil dimuat: " +
+                $"{LibraryItem.TotalCreated} bahan pustaka, " +
+                $"{perpustakaan.GetAllMembers().Count} anggota."
+            );
         }
 
         // =============================================
