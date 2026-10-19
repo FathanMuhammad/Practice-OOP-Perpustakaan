@@ -18,7 +18,7 @@ internal class Program
             while (isRunning)
             {
                 DisplayMenu();
-                int choice = ReadIntInRange("Pilih menu (0-8): ", 0, 8);
+                int choice = ReadIntInRange("Pilih menu (0-11): ", 0, 11);
                 Console.WriteLine();
                 HandleMenu(choice);
 
@@ -59,6 +59,9 @@ internal class Program
             Console.WriteLine("6. Tampilkan Riwayat Peminjaman Anggota");
             Console.WriteLine("7. Tampilkan Laporan Harian");
             Console.WriteLine("8. Tambah Bahan Pustaka Baru");
+            Console.WriteLine("9. [LINQ] Bahan Pustaka Tersedia (Urut Judul)");
+            Console.WriteLine("10. [LINQ] Jumlah Bahan Pustaka per Jenis");
+            Console.WriteLine("11. [LINQ] Total Denda per Anggota");
             Console.WriteLine("0. Keluar Program");
         }
 
@@ -74,6 +77,9 @@ internal class Program
                 case 6: ProcessMemberHistory(); break;
                 case 7: perpustakaan.PrintDailyReport(); break;
                 case 8: ProcessAddItem(); break;
+                case 9: LinqQuery.TampilkanBahanPustakaTersediaUrutJudul(perpustakaan); break;
+                case 10: LinqQuery.TampilkanJumlahBahanPustakaPerJenis(perpustakaan); break;
+                case 11: LinqQuery.TampilkanTotalDendaPerAnggota(perpustakaan); break;
                 case 0:
                     isRunning = false;
                     Console.WriteLine("Terima kasih telah menggunakan Sistem Perpustakaan.");
